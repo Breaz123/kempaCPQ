@@ -7,8 +7,8 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import quoteRequestsRouter from './routes/quote-requests';
-import healthRouter from './routes/health';
+import quoteRequestsRouter from './routes/quote-requests.js';
+import healthRouter from './routes/health.js';
 
 // Load environment variables
 dotenv.config();

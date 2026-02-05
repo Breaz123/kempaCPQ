@@ -11,9 +11,9 @@ import {
   getQuoteRequestByNumber,
   getAllQuoteRequests,
   updateQuoteRequestStatus,
-} from '../../services/QuoteRequestService';
-import { QuoteRequestStatus } from '../../types/QuoteRequestStatus';
-import { createQuoteRequestSchema, CreateQuoteRequestInput } from '../../validators/quoteRequestValidator';
+} from '../../services/QuoteRequestService.js';
+import { QuoteRequestStatus } from '../../types/QuoteRequestStatus.js';
+import { createQuoteRequestSchema, CreateQuoteRequestInput } from '../../validators/quoteRequestValidator.js';
 
 const router = Router();
 

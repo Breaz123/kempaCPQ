@@ -5,11 +5,11 @@
  * Handelt alle operaties af op QuoteRequest entiteiten.
  */
 
-import { prisma } from '../config/database';
-import { QuoteRequest } from '../models/QuoteRequest';
-import { QuoteRequestStatus } from '../types/QuoteRequestStatus';
+import { prisma } from '../config/database.js';
+import { QuoteRequest } from '../models/QuoteRequest.js';
+import { QuoteRequestStatus } from '../types/QuoteRequestStatus.js';
 import { Prisma } from '@prisma/client';
-import { CreateQuoteRequestInput } from '../validators/quoteRequestValidator';
+import { CreateQuoteRequestInput } from '../validators/quoteRequestValidator.js';
 
 /**
  * Genereert een uniek request nummer
