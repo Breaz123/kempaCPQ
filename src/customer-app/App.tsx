@@ -83,12 +83,17 @@ export function CustomerApp() {
         priceResponse
       );
       
-      if (response.success && response.data) {
+      if (response && response.success && response.data) {
         setQuoteRequest(response.data);
         setStep('confirmation');
+      } else {
+        // Response format is unexpected
+        console.error('Unexpected response format:', response);
+        // Error will be set by the hook, but ensure we don't stay stuck
       }
     } catch (err) {
       console.error('Failed to submit quote request:', err);
+      // Error is already handled by the hook, but ensure we don't stay stuck
     }
   };
 

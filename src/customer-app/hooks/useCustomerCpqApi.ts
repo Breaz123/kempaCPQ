@@ -189,25 +189,79 @@ export function useCustomerCpqApi() {
       }
 
       // Call backend API
-      const response = await fetch(`${API_BASE_URL}/api/quote-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
+      const apiUrl = `${API_BASE_URL}/api/quote-requests`;
+      console.log('[useCustomerCpqApi] Submitting quote request to:', apiUrl);
+      
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+          signal: controller.signal,
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch {
+            errorData = { message: `HTTP error! status: ${response.status}` };
+          }
+          const errorMsg = errorData.error || errorData.message || `HTTP error! status: ${response.status}`;
+          throw new Error(errorMsg);
+        }
+
+        let result: QuoteRequestResponse;
+        try {
+          result = await response.json();
+        } catch (parseError) {
+          throw new Error('Ongeldig antwoord van de server. Probeer het opnieuw.');
+        }
+
+        // Validate response structure
+        if (!result || typeof result !== 'object') {
+          throw new Error('Ongeldig antwoordformaat van de server.');
+        }
+
+        if (!result.success) {
+          throw new Error(result.error || 'De aanvraag kon niet worden verwerkt.');
+        }
+
+        if (!result.data) {
+          throw new Error('Geen data ontvangen van de server.');
+        }
+
+        return result;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error('De aanvraag duurde te lang. Controleer uw internetverbinding en probeer het opnieuw.');
+        }
+        
+        throw fetchError;
       }
-
-      const result: QuoteRequestResponse = await response.json();
-      return result;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit quote request';
+      let errorMessage = 'Failed to submit quote request';
+      
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        // Network error - server might not be running or CORS issue
+        errorMessage = `Kan niet verbinden met de server. Controleer of de backend API draait op ${API_BASE_URL}`;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
       console.error('Error submitting quote request:', err);
+      console.error('API URL was:', `${API_BASE_URL}/api/quote-requests`);
       throw err;
     } finally {
       setLoading(false);

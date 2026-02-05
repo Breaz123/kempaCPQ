@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Mdf3DPreview } from './Mdf3DPreview';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ConfigurationFormProps {
   onSubmit: (config: MdfConfiguration) => void;
@@ -42,6 +44,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
   const [heightMm, setHeightMm] = useState<number>(18);
   const [quantity, setQuantity] = useState<number>(1);
   const [coatingSides, setCoatingSides] = useState<CoatingSide[]>([]);
+  const [numberOfColors, setNumberOfColors] = useState<number>(1);
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleSideToggle = (side: CoatingSide) => {
@@ -96,77 +99,130 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="space-y-2"
-        >
-          <Label htmlFor="length">Lengte (mm)</Label>
-          <Input
-            id="length"
-            type="number"
-            value={lengthMm}
-            onChange={(e) => setLengthMm(Number(e.target.value))}
-            min="1"
-            required
-            className="w-full"
-          />
-        </motion.div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="length">Lengte (mm)</Label>
+              <Input
+                id="length"
+                type="number"
+                value={lengthMm}
+                onChange={(e) => setLengthMm(Number(e.target.value))}
+                min="1"
+                required
+                className="w-full"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="width">Breedte (mm)</Label>
+              <Input
+                id="width"
+                type="number"
+                value={widthMm}
+                onChange={(e) => setWidthMm(Number(e.target.value))}
+                min="1"
+                required
+                className="w-full"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="height">Hoogte/Dikte (mm)</Label>
+              <Input
+                id="height"
+                type="number"
+                value={heightMm}
+                onChange={(e) => setHeightMm(Number(e.target.value))}
+                min="1"
+                required
+                className="w-full"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="quantity">Aantal</Label>
+              <Input
+                id="quantity"
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                min="1"
+                required
+                className="w-full"
+              />
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="space-y-2"
+          >
+            <Label htmlFor="numberOfColors">Aantal Kleuren</Label>
+            <Input
+              id="numberOfColors"
+              type="number"
+              value={numberOfColors}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                setNumberOfColors(Math.max(1, Math.min(6, value)));
+              }}
+              min="1"
+              max="6"
+              required
+              className="w-full"
+            />
+            <p className="text-sm text-muted-foreground">
+              Kies het aantal verschillende kleuren voor de coating (1-6)
+            </p>
+          </motion.div>
+        </div>
 
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-2"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5 }}
         >
-          <Label htmlFor="width">Breedte (mm)</Label>
-          <Input
-            id="width"
-            type="number"
-            value={widthMm}
-            onChange={(e) => setWidthMm(Number(e.target.value))}
-            min="1"
-            required
-            className="w-full"
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-2"
-        >
-          <Label htmlFor="height">Hoogte/Dikte (mm)</Label>
-          <Input
-            id="height"
-            type="number"
-            value={heightMm}
-            onChange={(e) => setHeightMm(Number(e.target.value))}
-            min="1"
-            required
-            className="w-full"
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="space-y-2"
-        >
-          <Label htmlFor="quantity">Aantal</Label>
-          <Input
-            id="quantity"
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            min="1"
-            required
-            className="w-full"
-          />
+          <Card>
+            <CardHeader>
+              <CardTitle>3D Preview</CardTitle>
+              <CardDescription>
+                Bekijk uw MDF plaat in 3D met de gekozen instellingen
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Mdf3DPreview
+                lengthMm={lengthMm}
+                widthMm={widthMm}
+                heightMm={heightMm}
+                coatingSides={coatingSides}
+                numberOfColors={numberOfColors}
+              />
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
 

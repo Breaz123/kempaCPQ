@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm install && npm run build:customer",
+  "buildCommand": "npm install --legacy-peer-deps && npm run build:customer",
   "outputDirectory": "dist-customer",
   "installCommand": "npm install",
   "framework": null,

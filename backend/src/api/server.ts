@@ -17,9 +17,79 @@ const app: Express = express();
 const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
+// Parse allowed origins from environment
+const parseAllowedOrigins = (): string | string[] => {
+  if (process.env.CORS_ORIGIN) {
+    // If CORS_ORIGIN is set, use it (can be comma-separated)
+    const origins = process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(o => o.length > 0);
+    
+    // If multiple origins, return array
+    if (origins.length > 1) {
+      return origins;
+    }
+    
+    // Single origin
+    if (origins.length === 1) {
+      return origins[0];
+    }
+  }
+  
+  // In development, allow both sales app (5173) and customer app (5174)
+  if (process.env.NODE_ENV !== 'production') {
+    return ['http://localhost:5173', 'http://localhost:5174'];
+  }
+  
+  // Production fallback
+  return CORS_ORIGIN;
+};
+
+// Get allowed origins once
+const allowedOrigins = parseAllowedOrigins();
+
+// CORS origin validation function - supports Vercel preview URLs
+const corsOriginCallback = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  // If no origin (e.g., same-origin request), allow it
+  if (!origin) {
+    return callback(null, true);
+  }
+  
+  // If allowedOrigins is a string, check exact match
+  if (typeof allowedOrigins === 'string') {
+    // Also allow Vercel preview URLs if main Vercel domain is configured
+    if (origin.includes('.vercel.app') && allowedOrigins.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(null, origin === allowedOrigins);
+  }
+  
+  // If allowedOrigins is an array, check if origin is in array
+  if (Array.isArray(allowedOrigins)) {
+    // Also check for Vercel preview URLs if main domain is in the list
+    const isVercelPreview = origin.includes('.vercel.app');
+    const hasVercelDomain = allowedOrigins.some(o => typeof o === 'string' && o.includes('vercel.app'));
+    
+    if (isVercelPreview && hasVercelDomain) {
+      // Allow any Vercel preview deployment if main Vercel domain is allowed
+      return callback(null, true);
+    }
+    
+    return callback(null, allowedOrigins.includes(origin));
+  }
+  
+  // Fallback: deny
+  callback(null, false);
+};
+
+// Determine CORS origin configuration
+// Use callback function in production for dynamic Vercel preview URL support
+// Use static origins in development for better performance
+const corsOriginConfig = process.env.NODE_ENV === 'production' && process.env.CORS_ORIGIN
+  ? corsOriginCallback
+  : allowedOrigins;
+
 // Middleware
 app.use(cors({
-  origin: CORS_ORIGIN,
+  origin: corsOriginConfig,
   credentials: true,
 }));
 app.use(express.json());

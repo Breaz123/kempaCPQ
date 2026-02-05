@@ -43,7 +43,11 @@ git push origin main
 ### 4. Update CORS (30 sec)
 
 1. Railway → Backend service → **Variables**
-2. Update `CORS_ORIGIN` met je Vercel URL
+2. Update `CORS_ORIGIN` met je Vercel URL:
+   ```
+   CORS_ORIGIN=https://jouw-app.vercel.app
+   ```
+   *Note: Vercel preview URLs worden automatisch toegestaan als je de main Vercel domain instelt.*
 3. Railway herstart automatisch
 
 ### 5. Database Migrations (1 min)

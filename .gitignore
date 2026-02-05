@@ -49,3 +49,4 @@ coverage/
 # Misc
 *.xml
 fonnts.com-*/
+.vercel

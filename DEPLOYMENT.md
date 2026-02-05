@@ -131,11 +131,28 @@ VITE_API_BASE_URL=https://jouw-backend.railway.app
 Na het deployen van de frontend, update de backend CORS:
 
 1. Ga naar Railway → Backend service → Variables
-2. Update `CORS_ORIGIN` met je Vercel URL:
+2. Update `CORS_ORIGIN` met je Vercel URL(s):
+   
+   **Voor alleen production:**
    ```
    CORS_ORIGIN=https://jouw-app.vercel.app
    ```
+   
+   **Voor production + preview deployments (aanbevolen):**
+   ```
+   CORS_ORIGIN=https://jouw-app.vercel.app
+   ```
+   *Note: Vercel preview URLs (bijv. `https://jouw-app-git-branch.vercel.app`) worden automatisch toegestaan als je de main Vercel domain instelt.*
+   
+   **Voor meerdere specifieke domains:**
+   ```
+   CORS_ORIGIN=https://jouw-app.vercel.app,https://jouw-app-custom-domain.com
+   ```
+   (Scheid meerdere URLs met een komma)
+   
 3. Railway herstart automatisch
+
+**Belangrijk:** De backend ondersteunt nu automatisch Vercel preview deployments. Als je `CORS_ORIGIN` instelt op je main Vercel URL (bijv. `https://jouw-app.vercel.app`), worden alle preview URLs automatisch toegestaan.
 
 ## Stap 5: Database Schema Update (PostgreSQL)
 
