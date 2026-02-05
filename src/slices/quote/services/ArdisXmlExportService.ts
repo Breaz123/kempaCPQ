@@ -11,7 +11,7 @@
 
 import { Quote } from '../models/Quote';
 import { QuoteLineItem } from '../models/QuoteLineItem';
-import { CoatingSide } from '../../configuration/models/MdfConfiguration';
+import type { CoatingSide } from '../../configuration/models/MdfConfiguration';
 
 /**
  * Customer information for XML export

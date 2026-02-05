@@ -5,7 +5,7 @@
  * and builds complete quotes with deterministic totals.
  */
 
-import { MdfConfiguration } from '../../configuration/models/MdfConfiguration';
+import type { MdfConfiguration } from '../../configuration/models/MdfConfiguration';
 import { Quote, QuoteStatus } from '../models/Quote';
 import {
   createQuoteLineItem,
