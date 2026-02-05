@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:customer",
+  "buildCommand": "npm ci && npm run build:customer",
   "outputDirectory": "dist-customer",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "framework": null,
   "rewrites": [
     {
