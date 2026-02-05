@@ -54,11 +54,7 @@ export { QuoteApiService } from './services/QuoteApiService';
  * @param apiClient - Configured API client
  * @returns Object with all services
  */
-export function createBusinessCentralServices(apiClient: BusinessCentralApiClient): {
-  products: ProductApiService;
-  pricing: PriceApiService;
-  quotes: QuoteApiService;
-} {
+export function createBusinessCentralServices(apiClient: BusinessCentralApiClient) {
   return {
     products: new ProductApiService(apiClient),
     pricing: new PriceApiService(apiClient),
