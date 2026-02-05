@@ -6,7 +6,7 @@
 
 import { BusinessCentralApiClient } from './BusinessCentralApiClient';
 import { BusinessCentralProduct } from '../models/BusinessCentralProduct';
-import { ApiError, ApiErrorCode, createApiError } from '../models/ApiError';
+import { ApiErrorCode, createApiError } from '../models/ApiError';
 
 /**
  * Service for fetching products from Business Central

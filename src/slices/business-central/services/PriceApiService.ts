@@ -7,7 +7,7 @@
 import { BusinessCentralApiClient } from './BusinessCentralApiClient';
 import { BusinessCentralPriceRequest } from '../models/BusinessCentralPriceRequest';
 import { BusinessCentralPriceResponse } from '../models/BusinessCentralPriceResponse';
-import { ApiError, ApiErrorCode, createApiError } from '../models/ApiError';
+import { ApiErrorCode, createApiError } from '../models/ApiError';
 
 /**
  * Service for fetching prices from Business Central

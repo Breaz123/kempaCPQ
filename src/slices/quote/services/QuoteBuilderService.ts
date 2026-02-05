@@ -6,14 +6,13 @@
  */
 
 import { MdfConfiguration } from '../../configuration/models/MdfConfiguration';
-import { Quote, QuoteStatus, createQuote } from '../models/Quote';
+import { Quote, QuoteStatus } from '../models/Quote';
 import {
-  QuoteLineItem,
   createQuoteLineItem,
   calculateLineTotal,
   generateLineDescription,
 } from '../models/QuoteLineItem';
-import { QuoteTotals, calculateQuoteTotals } from '../models/QuoteTotals';
+import { calculateQuoteTotals } from '../models/QuoteTotals';
 
 /**
  * Price response structure from Pricing slice

@@ -11,7 +11,10 @@
  * - Error handling
  */
 
-import { createApiClientFromEnv as createClientFromEnv } from './services/BusinessCentralApiClient';
+import { createApiClientFromEnv as createClientFromEnv, BusinessCentralApiClient } from './services/BusinessCentralApiClient';
+import { ProductApiService } from './services/ProductApiService';
+import { PriceApiService } from './services/PriceApiService';
+import { QuoteApiService } from './services/QuoteApiService';
 
 // Models
 export type { ApiError } from './models/ApiError';
