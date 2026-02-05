@@ -5,7 +5,7 @@
  * Flow: Customer Info → Configuration → Price → Submit Request
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfigurationForm } from '../app/components/ConfigurationForm';
 import { PriceBreakdown } from '../app/components/PriceBreakdown';

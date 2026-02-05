@@ -4,7 +4,7 @@
  * Provides functionality to export quote to Ardis XML format with modern UI.
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote } from '../../slices/quote';
 import { exportQuoteToArdisXml, ArdisHeaderInfo, CustomerInfo } from '../../slices/quote';

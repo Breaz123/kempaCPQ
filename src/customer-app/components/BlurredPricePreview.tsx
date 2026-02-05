@@ -4,7 +4,6 @@
  * Toont de volledige prijsopgave, maar alleen het prijsgedeelte is geblurred.
  */
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { MdfConfiguration } from '../../slices/configuration';
 import { BusinessCentralPriceResponse } from '../../slices/business-central';

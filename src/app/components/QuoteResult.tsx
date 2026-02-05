@@ -4,7 +4,6 @@
  * Displays the generated quote with modern design and animations.
  */
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Quote } from '../../slices/quote';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

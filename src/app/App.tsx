@@ -4,7 +4,7 @@
  * Modern, conversion-focused CPQ UI with animations and polished design.
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfigurationForm } from './components/ConfigurationForm';
 import { PriceBreakdown } from './components/PriceBreakdown';
@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Info, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export function App() {
   const [configuration, setConfiguration] = useState<MdfConfiguration | null>(null);

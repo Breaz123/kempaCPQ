@@ -223,7 +223,7 @@ export function useCpqApi() {
         // Real Business Central submission
         const services = getServices();
         const submissionData = mapQuoteToBusinessCentral(quoteWithLineItem, customerNumber);
-        const bcResponse = await services.quotes.submitQuote(submissionData);
+        await services.quotes.submitQuote(submissionData);
 
         // Update quote status
         const submittedQuote: Quote = {
