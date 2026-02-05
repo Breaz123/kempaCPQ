@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Bely Display';
+  src: url('./fonts/Bely_Display.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Kempa Branding - Natural Wood Tones & Professional Colors */
+    --background: 0 0% 98%;
+    --foreground: 25 15% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 25 15% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 15% 15%;
+    /* Primary: Kempa dark teal/forest green (donkerder groen zoals op website) */
+    /* Geschat op basis van afbeelding: ongeveer #2D5A4A of hsl(160, 30%, 28%) */
+    --primary: 160 30% 28%;
+    --primary-foreground: 0 0% 98%;
+    /* Secondary: Natural beige/cream (#F5F1EB / hsl(30, 25%, 95%)) */
+    --secondary: 30 25% 95%;
+    --secondary-foreground: 25 15% 25%;
+    /* Muted: Warm gray (#E8E3DC / hsl(30, 15%, 90%)) */
+    --muted: 30 15% 90%;
+    --muted-foreground: 25 10% 45%;
+    /* Accent: Warm wood brown (#8B6F47 / hsl(30, 33%, 42%)) */
+    --accent: 30 33% 42%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    /* Border: Warm light brown (#D4C4B0 / hsl(30, 20%, 75%)) */
+    --border: 30 20% 75%;
+    --input: 30 20% 75%;
+    --ring: 160 30% 28%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bely Display', serif;
+    font-weight: 400;
+  }
+}

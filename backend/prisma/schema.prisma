@@ -1,0 +1,51 @@
+// Prisma schema voor CPQ Kempa Backend
+// Database schema voor offerte aanvragen
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // PostgreSQL voor production (Railway)
+  url      = env("DATABASE_URL")
+}
+
+model QuoteRequest {
+  id            String   @id @default(uuid())
+  requestNumber String   @unique // "QR-2024-001"
+  
+  // Klantgegevens
+  customerName     String
+  customerEmail   String
+  customerPhone   String?
+  companyName     String?
+  address         String?
+  city            String?
+  postalCode      String?
+  country         String   @default("NL")
+  
+  // Quote data (JSON - opgeslagen als String in SQLite, JSONB in PostgreSQL)
+  configuration   String   // MdfConfiguration (JSON string)
+  productData     String   // Product info (JSON string)
+  priceData       String   // PriceResponse (JSON string)
+  
+  // Status & workflow
+  status          String   @default("PENDING") // QuoteRequestStatus: PENDING, REVIEWING, APPROVED, REJECTED, EXPIRED
+  submittedAt     DateTime @default(now())
+  reviewedAt      DateTime?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  
+  // Business Central integratie (later)
+  bcQuoteNumber   String?  // Quote nummer in BC na goedkeuring
+  
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status])
+  @@index([customerEmail])
+  @@index([submittedAt])
+  @@map("quote_requests")
+}

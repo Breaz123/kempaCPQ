@@ -1,0 +1,12 @@
+node_modules/
+backend/
+dist/
+.env
+.env.local
+*.db
+*.db-journal
+.vscode/
+.idea/
+*.log
+docs/
+tests/
