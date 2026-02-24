@@ -305,7 +305,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             }
                             min="1"
                             required
-                            className="h-9 text-xs sm:text-sm"
+                            className="h-10 text-sm sm:text-base text-right"
                           />
                         </td>
                         <td className="px-3 py-3 align-middle">
@@ -320,7 +320,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             }
                             min="1"
                             required
-                            className="h-9 text-xs sm:text-sm"
+                            className="h-10 text-sm sm:text-base text-right"
                           />
                         </td>
                         <td className="px-3 py-3 align-middle">
@@ -332,7 +332,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                                 heightMm: Number(e.target.value),
                               })
                             }
-                            className="h-9 w-full px-2 border border-gray-300 rounded-md text-xs sm:text-sm bg-white"
+                            className="h-10 w-full px-2 border border-gray-300 rounded-md text-sm sm:text-base bg-white"
                             required
                           >
                             {AVAILABLE_THICKNESSES.map((thickness) => (
@@ -354,7 +354,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             }
                             min="1"
                             required
-                            className="h-9 text-xs sm:text-sm"
+                            className="h-10 text-sm sm:text-base text-right"
                           />
                         </td>
                         <td className="px-3 py-3 align-middle">
