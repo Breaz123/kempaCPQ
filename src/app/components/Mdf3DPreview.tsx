@@ -323,48 +323,86 @@ export function Mdf3DPreview({
   // Calculate camera distance based on board size
   const baseScale = 0.01;
   const maxDimension = Math.max(
-    lengthMm * baseScale, 
-    widthMm * baseScale, 
+    lengthMm * baseScale,
+    widthMm * baseScale,
     heightMm * baseScale
   );
   const cameraDistance = Math.max(15, maxDimension * 3);
+  const zoomCameraDistance = Math.max(5, maxDimension * 1.2);
   
   return (
-    <div className="w-full h-[400px] rounded-lg border-2 border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
-      <Canvas>
-        <PerspectiveCamera 
-          makeDefault 
-          position={[cameraDistance, cameraDistance * 0.6, cameraDistance]} 
-          fov={50} 
-        />
-        {/* Neutrale, zachte belichting zodat de kleur
-            zo dicht mogelijk bij de gekozen Kempa-kleur
-            blijft en niet te donker oogt. */}
-        <ambientLight intensity={1.1} />
-        <directionalLight position={[10, 10, 5]} intensity={0.3} />
-        <directionalLight position={[-10, 10, -5]} intensity={0.2} />
-        
-        <MdfBoard
-          lengthMm={lengthMm}
-          widthMm={widthMm}
-          heightMm={heightMm}
-          coatingSides={coatingSides}
-          selectedColor={selectedColor}
-          drillPositions={drillPositions}
-          structure={structure}
-        />
-        
-        <OrbitControls
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          minDistance={maxDimension * 1.5}
-          maxDistance={maxDimension * 8}
-        />
-      </Canvas>
-      
-      <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-xs text-gray-600 z-10">
-        <p>Sleep om te draaien • Scroll om in/uit te zoomen</p>
+    <div className="space-y-4">
+      {/* Hoofd 3D preview */}
+      <div className="w-full h-[400px] rounded-lg border-2 border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
+        <Canvas>
+          <PerspectiveCamera
+            makeDefault
+            position={[cameraDistance, cameraDistance * 0.6, cameraDistance]}
+            fov={50}
+          />
+          {/* Neutrale, zachte belichting zodat de kleur
+              zo dicht mogelijk bij de gekozen Kempa-kleur
+              blijft en niet te donker oogt. */}
+          <ambientLight intensity={1.1} />
+          <directionalLight position={[10, 10, 5]} intensity={0.3} />
+          <directionalLight position={[-10, 10, -5]} intensity={0.2} />
+
+          <MdfBoard
+            lengthMm={lengthMm}
+            widthMm={widthMm}
+            heightMm={heightMm}
+            coatingSides={coatingSides}
+            selectedColor={selectedColor}
+            drillPositions={drillPositions}
+            structure={structure}
+          />
+
+          <OrbitControls
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            minDistance={maxDimension * 1.5}
+            maxDistance={maxDimension * 8}
+          />
+        </Canvas>
+
+        <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-xs text-gray-600 z-10">
+          <p>Sleep om te draaien • Scroll om in/uit te zoomen</p>
+        </div>
+      </div>
+
+      {/* Tweede, ingezoomde structuur-preview */}
+      <div className="w-full h-[220px] rounded-lg border border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
+        <Canvas>
+          <PerspectiveCamera
+            makeDefault
+            position={[0, 0, zoomCameraDistance]}
+            fov={20}
+          />
+          <ambientLight intensity={1.1} />
+          <directionalLight position={[5, 5, 5]} intensity={0.4} />
+
+          <MdfBoard
+            lengthMm={lengthMm}
+            widthMm={widthMm}
+            heightMm={heightMm}
+            coatingSides={coatingSides}
+            selectedColor={selectedColor}
+            drillPositions={drillPositions}
+            structure={structure}
+          />
+
+          {/* Vast ingezoomde weergave: geen interactie nodig */}
+          <OrbitControls
+            enablePan={false}
+            enableZoom={false}
+            enableRotate={false}
+          />
+        </Canvas>
+
+        <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-xs text-gray-600 z-10">
+          <p>Ingezoomde weergave van de gekozen structuur</p>
+        </div>
       </div>
     </div>
   );

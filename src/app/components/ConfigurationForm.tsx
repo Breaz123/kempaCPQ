@@ -249,156 +249,164 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           <div className="space-y-3">
-            <Label>Afmetingen & aantallen</Label>
-            <p className="text-sm text-muted-foreground">
-              Voeg hier snel meerdere verschillende formaten toe, bijvoorbeeld
-              5× 200×200 mm en 4× 100×200 mm. Klik op een regel om deze in de
-              3D preview te bekijken.
-            </p>
-            <div className="space-y-3">
-              {dimensionRows.map((row, index) => {
-                const isActive = activeRow.id === row.id;
-                return (
-                  <motion.div
-                    key={row.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg border ${
-                      isActive
-                        ? 'border-primary bg-primary/5'
-                        : 'border-gray-200 bg-white'
-                    } cursor-pointer`}
-                    onClick={() => setActiveRowId(row.id)}
-                  >
-                    <div className="space-y-1">
-                      <Label htmlFor={`length-${row.id}`} className="text-xs">
-                        Lengte (mm)
-                      </Label>
-                      <Input
-                        id={`length-${row.id}`}
-                        type="number"
-                        value={row.lengthMm}
-                        onChange={(e) =>
-                          updateRow(row.id, {
-                            lengthMm: Number(e.target.value),
-                          })
-                        }
-                        min="1"
-                        required
-                        className="w-full text-sm"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`width-${row.id}`} className="text-xs">
-                        Breedte (mm)
-                      </Label>
-                      <Input
-                        id={`width-${row.id}`}
-                        type="number"
-                        value={row.widthMm}
-                        onChange={(e) =>
-                          updateRow(row.id, {
-                            widthMm: Number(e.target.value),
-                          })
-                        }
-                        min="1"
-                        required
-                        className="w-full text-sm"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`height-${row.id}`} className="text-xs">
-                        Dikte (mm)
-                      </Label>
-                      <select
-                        id={`height-${row.id}`}
-                        value={row.heightMm}
-                        onChange={(e) =>
-                          updateRow(row.id, {
-                            heightMm: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
-                        required
-                      >
-                        {AVAILABLE_THICKNESSES.map((thickness) => (
-                          <option key={thickness} value={thickness}>
-                            {thickness} mm
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`quantity-${row.id}`} className="text-xs">
-                        Aantal
-                      </Label>
-                      <Input
-                        id={`quantity-${row.id}`}
-                        type="number"
-                        value={row.quantity}
-                        onChange={(e) =>
-                          updateRow(row.id, {
-                            quantity: Number(e.target.value),
-                          })
-                        }
-                        min="1"
-                        required
-                        className="w-full text-sm"
-                      />
-                    </div>
-                    <div className="flex items-end justify-between gap-2">
-                      <Button
-                        type="button"
-                        variant={isActive ? 'default' : 'outline'}
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => setActiveRowId(row.id)}
-                      >
-                        Bekijk
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        disabled={dimensionRows.length === 1}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleRemoveRow(row.id);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {index === dimensionRows.length - 1 && (
-                      <div className="md:col-span-5 text-xs text-muted-foreground">
-                        {dimensionRows.length > 1 && (
-                          <span>
-                            Totaal aantal stuks:{' '}
-                            {dimensionRows.reduce(
-                              (sum, r) => sum + (r.quantity || 0),
-                              0
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+              <div>
+                <Label className="text-sm font-medium">Afmetingen & aantallen</Label>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                  Voeg hier snel meerdere verschillende formaten toe, bijvoorbeeld 5× 200×200 mm en
+                  4× 100×200 mm. Klik op een regel om deze in de 3D preview te bekijken.
+                </p>
+              </div>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-1"
+                className="mt-1 sm:mt-0 whitespace-nowrap"
                 onClick={handleAddRow}
               >
                 <Plus className="h-4 w-4 mr-1" />
                 Maatregel toevoegen
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Beschikbare diktes: 19, 22, 25 mm (standaard) en 30, 38 mm
-                (+35%).
-              </p>
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border bg-card">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/60">
+                  <tr className="text-xs text-muted-foreground">
+                    <th className="text-left font-medium px-3 py-2 w-[110px]">Lengte (mm)</th>
+                    <th className="text-left font-medium px-3 py-2 w-[110px]">Breedte (mm)</th>
+                    <th className="text-left font-medium px-3 py-2 w-[110px]">Dikte (mm)</th>
+                    <th className="text-left font-medium px-3 py-2 w-[90px]">Aantal</th>
+                    <th className="text-right font-medium px-3 py-2 w-[130px]">Actie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dimensionRows.map((row) => {
+                    const isActive = activeRow.id === row.id;
+                    return (
+                      <motion.tr
+                        key={row.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`border-t cursor-pointer transition-colors ${
+                          isActive ? 'bg-primary/5' : 'hover:bg-muted/40'
+                        }`}
+                        onClick={() => setActiveRowId(row.id)}
+                      >
+                        <td className="px-3 py-2 align-middle">
+                          <Input
+                            id={`length-${row.id}`}
+                            type="number"
+                            value={row.lengthMm}
+                            onChange={(e) =>
+                              updateRow(row.id, {
+                                lengthMm: Number(e.target.value),
+                              })
+                            }
+                            min="1"
+                            required
+                            className="h-9 text-xs sm:text-sm"
+                          />
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          <Input
+                            id={`width-${row.id}`}
+                            type="number"
+                            value={row.widthMm}
+                            onChange={(e) =>
+                              updateRow(row.id, {
+                                widthMm: Number(e.target.value),
+                              })
+                            }
+                            min="1"
+                            required
+                            className="h-9 text-xs sm:text-sm"
+                          />
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          <select
+                            id={`height-${row.id}`}
+                            value={row.heightMm}
+                            onChange={(e) =>
+                              updateRow(row.id, {
+                                heightMm: Number(e.target.value),
+                              })
+                            }
+                            className="h-9 w-full px-2 border border-gray-300 rounded-md text-xs sm:text-sm bg-white"
+                            required
+                          >
+                            {AVAILABLE_THICKNESSES.map((thickness) => (
+                              <option key={thickness} value={thickness}>
+                                {thickness} mm
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          <Input
+                            id={`quantity-${row.id}`}
+                            type="number"
+                            value={row.quantity}
+                            onChange={(e) =>
+                              updateRow(row.id, {
+                                quantity: Number(e.target.value),
+                              })
+                            }
+                            min="1"
+                            required
+                            className="h-9 text-xs sm:text-sm"
+                          />
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          <div className="flex items-center justify-end gap-2">
+                            {isActive && (
+                              <span className="hidden md:inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                                In 3D-weergave
+                              </span>
+                            )}
+                            <Button
+                              type="button"
+                              variant={isActive ? 'default' : 'outline'}
+                              size="sm"
+                              className="px-2"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setActiveRowId(row.id);
+                              }}
+                            >
+                              Bekijk
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              disabled={dimensionRows.length === 1}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleRemoveRow(row.id);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-xs text-muted-foreground">
+              <span>
+                Beschikbare diktes: 19, 22, 25 mm (standaard) en 30, 38 mm (+35%).
+              </span>
+              {dimensionRows.length > 1 && (
+                <span className="font-medium">
+                  Totaal aantal stuks:{' '}
+                  {dimensionRows.reduce((sum, r) => sum + (r.quantity || 0), 0)}
+                </span>
+              )}
             </div>
           </div>
 
