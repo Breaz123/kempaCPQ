@@ -311,6 +311,88 @@ function MdfBoard({
   );
 }
 
+// Ingezoomde vlakke weergave van de plaat (lengte × breedte),
+// speciaal voor het duidelijk tonen van de structuur zonder perspectief.
+function MdfZoomPlane({
+  lengthMm,
+  widthMm,
+  selectedColor = '#FF6B6B',
+  structure,
+}: Pick<Mdf3DPreviewProps, 'lengthMm' | 'widthMm' | 'selectedColor' | 'structure'>) {
+  const baseScale = 0.01;
+  const length = lengthMm * baseScale;
+  const width = widthMm * baseScale;
+
+  const textures = useTexture({
+    [MdfStructure.Line]: lineTextureUrl,
+    [MdfStructure.Stone]: stoneTextureUrl,
+    [MdfStructure.Leather]: leatherTextureUrl,
+    [MdfStructure.Linen]: linenTextureUrl,
+  });
+
+  const surfaceTexture = structure ? textures[structure] : undefined;
+
+  const baseMaterial = (() => {
+    switch (structure) {
+      case MdfStructure.Stone:
+        return {
+          roughness: 0.9,
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.25,
+          bumpScale: 0.35,
+        };
+      case MdfStructure.Leather:
+        return {
+          roughness: 0.8,
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.3,
+          bumpScale: 0.25,
+        };
+      case MdfStructure.Linen:
+        return {
+          roughness: 0.85,
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.25,
+          bumpScale: 0.2,
+        };
+      case MdfStructure.Line:
+      default:
+        return {
+          roughness: 0.75,
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.3,
+          bumpScale: 0.3,
+        };
+    }
+  })();
+
+  const materialProps = {
+    color: selectedColor,
+    metalness: 0.0,
+    ...baseMaterial,
+  };
+
+  return (
+    <mesh position={[0, 0, 0]}>
+      <planeGeometry args={[length, width]} />
+      <meshPhysicalMaterial
+        color={materialProps.color}
+        bumpMap={surfaceTexture}
+        bumpScale={materialProps.bumpScale}
+        roughness={materialProps.roughness}
+        metalness={materialProps.metalness}
+        clearcoat={materialProps.clearcoat}
+        clearcoatRoughness={materialProps.clearcoatRoughness}
+        envMapIntensity={materialProps.envMapIntensity}
+      />
+    </mesh>
+  );
+}
+
 export function Mdf3DPreview({
   lengthMm,
   widthMm,
@@ -392,13 +474,10 @@ export function Mdf3DPreview({
           <ambientLight intensity={1.1} />
           <directionalLight position={[5, 5, 5]} intensity={0.4} />
 
-          <MdfBoard
+          <MdfZoomPlane
             lengthMm={lengthMm}
             widthMm={widthMm}
-            heightMm={heightMm}
-            coatingSides={coatingSides}
             selectedColor={selectedColor}
-            drillPositions={drillPositions}
             structure={structure}
           />
 
