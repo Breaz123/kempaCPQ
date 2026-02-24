@@ -8,6 +8,7 @@
 import { useState, useCallback } from 'react';
 import { BusinessCentralProduct, BusinessCentralPriceRequest, BusinessCentralPriceResponse, createBusinessCentralServicesFromEnv } from '../../slices/business-central';
 import { MdfConfiguration } from '../../slices/configuration';
+import { calculatePoederlakPrice } from '../../slices/configuration/services/PoederlakPricingService';
 import { Quote, QuoteStatus, createQuote, addLineItemToQuote, PriceResponse } from '../../slices/quote';
 import { mapQuoteToBusinessCentral } from '../../slices/quote/services/BusinessCentralQuoteMapper';
 
@@ -50,33 +51,31 @@ function isBusinessCentralConfigured(): boolean {
   return !!(baseUrl && companyId && (accessToken || apiKey));
 }
 
-// Mock price calculation
+// Mock price calculation op basis van interne poederlak-formule
 function calculateMockPrice(
   itemNumber: string,
   configuration: MdfConfiguration
 ): BusinessCentralPriceResponse {
-  // Basisprijs: €135 per m² coating oppervlakte (zonder extra's)
-  const PRICE_PER_M2 = 135; // EUR per m²
-  
-  // Bereken oppervlakte per stuk (lengte × breedte in m²)
-  const areaPerPiece = (configuration.lengthMm * configuration.widthMm) / 1000000; // Convert mm² to m²
-  
-  // Bereken totale coating oppervlakte (oppervlakte × aantal coating zijden)
-  const coatingArea = areaPerPiece * configuration.coatingSides.length;
-  
-  // Unitprijs = coating oppervlakte × €135 per m²
-  const unitPrice = coatingArea * PRICE_PER_M2;
-  
-  // Totaalprijs = unitprijs × aantal stuks
-  const totalPrice = unitPrice * configuration.quantity;
-  
+  const result = calculatePoederlakPrice(configuration);
+
+  const roundCurrency = (value: number) => Math.round(value * 100) / 100;
+
   return {
-    unitPrice: Math.round(unitPrice * 100) / 100,
-    totalPrice: Math.round(totalPrice * 100) / 100,
+    unitPrice: roundCurrency(result.unitPrice),
+    totalPrice: roundCurrency(result.totalPrice),
     currencyCode: 'EUR',
     itemNumber,
     quantity: configuration.quantity,
     unitOfMeasure: 'PCS',
+    details: {
+      pricingModel: 'poederlak-local',
+      basePricePerM2: result.basePricePerM2,
+      effectivePricePerM2: result.effectivePricePerM2,
+      rawAreaPerPieceM2: result.rawAreaPerPieceM2,
+      chargedAreaPerPieceM2: result.chargedAreaPerPieceM2,
+      totalChargedAreaM2: result.totalChargedAreaM2,
+      thicknessFactor: result.thicknessFactor,
+    },
   };
 }
 

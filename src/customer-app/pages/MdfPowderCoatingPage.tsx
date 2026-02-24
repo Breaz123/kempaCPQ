@@ -361,9 +361,11 @@ export function MdfPowderCoatingPage() {
                   <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
                     Transparante Prijsopbouw
                   </Badge>
-                  <div className="text-5xl md:text-6xl font-bold text-primary mb-4">€135/m²</div>
-                  <p className="text-xl text-gray-700 font-semibold">Vaste instapprijs vanaf</p>
-                  <p className="text-base text-gray-600 mt-2">Structurele basisprijs voor MDF poederlakwerk</p>
+                  <div className="text-5xl md:text-6xl font-bold text-primary mb-4">€166/m²</div>
+                  <p className="text-xl text-gray-700 font-semibold">Catalogusprijs per m²</p>
+                  <p className="text-base text-gray-600 mt-2">
+                    Op basis van het zichtvlak van de deur, met een minimum van 0,15 m² per onderdeel
+                  </p>
                 </div>
               
               <div className="space-y-6 max-w-2xl mx-auto">

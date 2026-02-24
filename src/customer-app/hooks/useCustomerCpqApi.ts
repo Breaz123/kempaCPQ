@@ -8,6 +8,7 @@
 import { useState, useCallback } from 'react';
 import { BusinessCentralProduct, BusinessCentralPriceResponse, createBusinessCentralServicesFromEnv } from '../../slices/business-central';
 import { MdfConfiguration } from '../../slices/configuration';
+import { calculatePoederlakPrice } from '../../slices/configuration/services/PoederlakPricingService';
 import { CustomerInfo } from '../components/CustomerInfoForm';
 
 // Backend API base URL
@@ -30,24 +31,31 @@ const MOCK_PRODUCTS: BusinessCentralProduct[] = [
   },
 ];
 
-// Mock price calculation (same as sales version)
+// Mock price calculation op basis van interne poederlak-formule
 function calculateMockPrice(
   itemNumber: string,
   configuration: MdfConfiguration
 ): BusinessCentralPriceResponse {
-  const PRICE_PER_M2 = 135; // EUR per m²
-  const areaPerPiece = (configuration.lengthMm * configuration.widthMm) / 1000000;
-  const coatingArea = areaPerPiece * configuration.coatingSides.length;
-  const unitPrice = coatingArea * PRICE_PER_M2;
-  const totalPrice = unitPrice * configuration.quantity;
+  const result = calculatePoederlakPrice(configuration);
+
+  const roundCurrency = (value: number) => Math.round(value * 100) / 100;
 
   return {
-    unitPrice: Math.round(unitPrice * 100) / 100,
-    totalPrice: Math.round(totalPrice * 100) / 100,
+    unitPrice: roundCurrency(result.unitPrice),
+    totalPrice: roundCurrency(result.totalPrice),
     currencyCode: 'EUR',
     itemNumber,
     quantity: configuration.quantity,
     unitOfMeasure: 'PCS',
+    details: {
+      pricingModel: 'poederlak-local',
+      basePricePerM2: result.basePricePerM2,
+      effectivePricePerM2: result.effectivePricePerM2,
+      rawAreaPerPieceM2: result.rawAreaPerPieceM2,
+      chargedAreaPerPieceM2: result.chargedAreaPerPieceM2,
+      totalChargedAreaM2: result.totalChargedAreaM2,
+      thicknessFactor: result.thicknessFactor,
+    },
   };
 }
 
