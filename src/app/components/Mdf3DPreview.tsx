@@ -58,6 +58,14 @@ function MdfBoard({
 
   const surfaceTexture = structure ? textures[structure] : undefined;
 
+  // Voor de ingezoomde view willen we de structuurfoto echt duidelijk zien,
+  // dus laten we de texture volledig als kleurkaart zien en eventueel herhalen.
+  if (surfaceTexture) {
+    surfaceTexture.wrapS = THREE.RepeatWrapping;
+    surfaceTexture.wrapT = THREE.RepeatWrapping;
+    surfaceTexture.repeat.set(2, 2);
+  }
+
   // Powder coating: always use the selected color for all sides
   // The entire board is powder coated with the same color
   const getSideColor = (): string => {
@@ -397,8 +405,9 @@ function MdfZoomPlane({
       <planeGeometry args={[length, width]} />
       <meshPhysicalMaterial
         color={materialProps.color}
+        map={surfaceTexture}
         bumpMap={surfaceTexture}
-        bumpScale={materialProps.bumpScale}
+        bumpScale={materialProps.bumpScale * 1.2}
         roughness={materialProps.roughness}
         metalness={materialProps.metalness}
         clearcoat={materialProps.clearcoat}
