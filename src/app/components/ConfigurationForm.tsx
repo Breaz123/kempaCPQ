@@ -226,7 +226,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {errors.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -269,7 +269,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
               </Button>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border bg-card">
+            <div className="overflow-x-auto rounded-lg border bg-card mt-2">
               <table className="w-full text-sm">
                 <thead className="bg-muted/60">
                   <tr className="text-xs text-muted-foreground">
@@ -293,7 +293,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                         }`}
                         onClick={() => setActiveRowId(row.id)}
                       >
-                        <td className="px-3 py-2 align-middle">
+                        <td className="px-3 py-3 align-middle">
                           <Input
                             id={`length-${row.id}`}
                             type="number"
@@ -308,7 +308,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             className="h-9 text-xs sm:text-sm"
                           />
                         </td>
-                        <td className="px-3 py-2 align-middle">
+                        <td className="px-3 py-3 align-middle">
                           <Input
                             id={`width-${row.id}`}
                             type="number"
@@ -323,7 +323,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             className="h-9 text-xs sm:text-sm"
                           />
                         </td>
-                        <td className="px-3 py-2 align-middle">
+                        <td className="px-3 py-3 align-middle">
                           <select
                             id={`height-${row.id}`}
                             value={row.heightMm}
@@ -342,7 +342,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             ))}
                           </select>
                         </td>
-                        <td className="px-3 py-2 align-middle">
+                        <td className="px-3 py-3 align-middle">
                           <Input
                             id={`quantity-${row.id}`}
                             type="number"
@@ -357,10 +357,15 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                             className="h-9 text-xs sm:text-sm"
                           />
                         </td>
-                        <td className="px-3 py-2 align-middle">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="px-3 py-3 align-middle">
+                          <div className="flex flex-col items-stretch sm:flex-row sm:items-center sm:justify-end gap-2">
                             {isActive && (
-                              <span className="hidden md:inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                              <span className="inline-flex sm:hidden items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                                In 3D-weergave
+                              </span>
+                            )}
+                            {isActive && (
+                              <span className="hidden sm:inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary mr-1">
                                 In 3D-weergave
                               </span>
                             )}
