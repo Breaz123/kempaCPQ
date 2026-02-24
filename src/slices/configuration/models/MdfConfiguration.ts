@@ -8,6 +8,29 @@
 import type { DrillPosition } from './DrillPosition';
 
 /**
+ * Single dimension set for one group of boards.
+ *
+ * This allows één configuratie te bevatten uit meerdere
+ * afmetingen/aantallen (bijv. 5× 200×200 en 4× 100×200).
+ */
+export interface DimensionSet {
+  /** Unique identifier for this dimension set (stable for UI lists) */
+  id: string;
+
+  /** Length of the MDF piece in millimeters */
+  lengthMm: number;
+
+  /** Width of the MDF piece in millimeters */
+  widthMm: number;
+
+  /** Height (thickness) of the MDF piece in millimeters */
+  heightMm: number;
+
+  /** Number of pieces with these dimensions */
+  quantity: number;
+}
+
+/**
  * Represents which sides of an MDF piece need powder coating
  */
 export enum CoatingSide {
@@ -65,6 +88,18 @@ export interface MdfConfiguration {
   
   /** Optional: Drill positions for holes (handles, hinges, etc.) */
   drillPositions?: DrillPosition[];
+
+  /**
+   * Optional: multiple dimension sets when a single request contains
+   * verschillende afmetingen/aantallen.
+   *
+   * - If present, `quantity` SHOULD gelijk zijn aan de som van alle
+   *   `dimensionSets[i].quantity`.
+   * - `lengthMm`, `widthMm` en `heightMm` blijven de "primaire" set
+   *   (meestal de eerste rij in de UI) voor compatibiliteit met
+   *   bestaande code en Business Central-attributen.
+   */
+  dimensionSets?: DimensionSet[];
   
   /** Timestamp when configuration was created */
   createdAt: Date;

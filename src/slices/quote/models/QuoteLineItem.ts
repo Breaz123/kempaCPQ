@@ -108,7 +108,15 @@ export function generateLineDescription(
   productName: string,
   configuration: MdfConfiguration
 ): string {
-  const dimensions = `${configuration.lengthMm}×${configuration.widthMm}×${configuration.heightMm}mm`;
+  const dimensions =
+    configuration.dimensionSets && configuration.dimensionSets.length > 0
+      ? configuration.dimensionSets
+          .map(
+            (set) =>
+              `${set.quantity}× ${set.lengthMm}×${set.widthMm}×${set.heightMm}mm`
+          )
+          .join(' + ')
+      : `${configuration.lengthMm}×${configuration.widthMm}×${configuration.heightMm}mm`;
   const sides = formatCoatingSides(configuration.coatingSides);
 
   let structurePart = '';

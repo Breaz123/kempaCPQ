@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MdfConfiguration, CoatingSide, MdfStructure, createMdfConfiguration, validateMdfConfiguration } from '../../slices/configuration';
+import { MdfConfiguration, CoatingSide, MdfStructure, createMdfConfiguration, validateMdfConfiguration, DimensionSet } from '../../slices/configuration';
 import { DrillPosition, createDrillPosition } from '../../slices/configuration/models/DrillPosition';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,12 +74,23 @@ const STRUCTURE_OPTIONS: { id: MdfStructure; label: string; description: string 
 ];
 
 export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
-  const [lengthMm, setLengthMm] = useState<number>(1000);
-  const [widthMm, setWidthMm] = useState<number>(500);
   // Dikte: vaste waarden volgens Kempa-catalogus (19, 22, 25, 30, 38 mm)
   const AVAILABLE_THICKNESSES = [19, 22, 25, 30, 38] as const;
-  const [heightMm, setHeightMm] = useState<number>(AVAILABLE_THICKNESSES[0]);
-  const [quantity, setQuantity] = useState<number>(1);
+  type DimensionRow = DimensionSet;
+
+  const createInitialRow = (): DimensionRow => ({
+    id: `dim-${Date.now()}`,
+    lengthMm: 1000,
+    widthMm: 500,
+    heightMm: AVAILABLE_THICKNESSES[0],
+    quantity: 1,
+  });
+
+  const [dimensionRows, setDimensionRows] = useState<DimensionRow[]>([
+    createInitialRow(),
+  ]);
+  const [activeRowId, setActiveRowId] = useState<string | null>(null);
+
   const [selectedColor, setSelectedColor] = useState<string>(BASE_COLORS[0].value);
   const [structure, setStructure] = useState<MdfStructure>(MdfStructure.Line);
   const [drillPositions, setDrillPositions] = useState<DrillPosition[]>([]);
@@ -89,6 +100,43 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
   const [newDrillSide, setNewDrillSide] = useState<CoatingSide>(CoatingSide.Front);
   const [newDrillPos1, setNewDrillPos1] = useState<string>('');
   const [newDrillPos2, setNewDrillPos2] = useState<string>('');
+
+  const activeRow: DimensionRow =
+    dimensionRows.find((row) => row.id === activeRowId) ??
+    dimensionRows[0];
+
+  const updateRow = (id: string, patch: Partial<DimensionRow>) => {
+    setDimensionRows((rows) =>
+      rows.map((row) => (row.id === id ? { ...row, ...patch } : row))
+    );
+  };
+
+  const handleAddRow = () => {
+    setDimensionRows((rows) => {
+      const newRow: DimensionRow = {
+        id: `dim-${Date.now()}-${Math.random()}`,
+        lengthMm: rows[0]?.lengthMm ?? 1000,
+        widthMm: rows[0]?.widthMm ?? 500,
+        heightMm: rows[0]?.heightMm ?? AVAILABLE_THICKNESSES[0],
+        quantity: 1,
+      };
+      setActiveRowId(newRow.id);
+      return [...rows, newRow];
+    });
+  };
+
+  const handleRemoveRow = (id: string) => {
+    setDimensionRows((rows) => {
+      if (rows.length === 1) {
+        return rows;
+      }
+      const filtered = rows.filter((row) => row.id !== id);
+      if (!filtered.find((row) => row.id === activeRowId)) {
+        setActiveRowId(filtered[0]?.id ?? null);
+      }
+      return filtered;
+    });
+  };
 
   const handleAddDrillPosition = () => {
     const pos1 = parseFloat(newDrillPos1);
@@ -116,6 +164,11 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (dimensionRows.length === 0) {
+      setErrors(['Voeg minstens één maatregel toe.']);
+      return;
+    }
     
     // Powder coating: always coat all sides with the same color
     const allSides = [
@@ -126,18 +179,35 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
       CoatingSide.Left,
       CoatingSide.Right,
     ];
-    
+
+    const totalQuantity = dimensionRows.reduce(
+      (sum, row) => sum + (row.quantity || 0),
+      0
+    );
+
+    const primaryRow = activeRow ?? dimensionRows[0];
+
     const config = createMdfConfiguration(
       `config-${Date.now()}`,
-      lengthMm,
-      widthMm,
-      heightMm,
-      quantity,
+      primaryRow.lengthMm,
+      primaryRow.widthMm,
+      primaryRow.heightMm,
+      totalQuantity || primaryRow.quantity || 1,
       allSides // Always coat all sides
     );
 
     // Attach selected structure to configuration for pricing/quote context
     (config as MdfConfiguration).structure = structure;
+
+    // Attach all dimension sets so de prijsformule weet dat er
+    // meerdere verschillende afmetingen zijn.
+    (config as MdfConfiguration).dimensionSets = dimensionRows.map((row) => ({
+      id: row.id,
+      lengthMm: row.lengthMm,
+      widthMm: row.widthMm,
+      heightMm: row.heightMm,
+      quantity: row.quantity,
+    }));
     
     // Add drill positions to config
     if (drillPositions.length > 0) {
@@ -178,6 +248,160 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
+          <div className="space-y-3">
+            <Label>Afmetingen & aantallen</Label>
+            <p className="text-sm text-muted-foreground">
+              Voeg hier snel meerdere verschillende formaten toe, bijvoorbeeld
+              5× 200×200 mm en 4× 100×200 mm. Klik op een regel om deze in de
+              3D preview te bekijken.
+            </p>
+            <div className="space-y-3">
+              {dimensionRows.map((row, index) => {
+                const isActive = activeRow.id === row.id;
+                return (
+                  <motion.div
+                    key={row.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg border ${
+                      isActive
+                        ? 'border-primary bg-primary/5'
+                        : 'border-gray-200 bg-white'
+                    } cursor-pointer`}
+                    onClick={() => setActiveRowId(row.id)}
+                  >
+                    <div className="space-y-1">
+                      <Label htmlFor={`length-${row.id}`} className="text-xs">
+                        Lengte (mm)
+                      </Label>
+                      <Input
+                        id={`length-${row.id}`}
+                        type="number"
+                        value={row.lengthMm}
+                        onChange={(e) =>
+                          updateRow(row.id, {
+                            lengthMm: Number(e.target.value),
+                          })
+                        }
+                        min="1"
+                        required
+                        className="w-full text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`width-${row.id}`} className="text-xs">
+                        Breedte (mm)
+                      </Label>
+                      <Input
+                        id={`width-${row.id}`}
+                        type="number"
+                        value={row.widthMm}
+                        onChange={(e) =>
+                          updateRow(row.id, {
+                            widthMm: Number(e.target.value),
+                          })
+                        }
+                        min="1"
+                        required
+                        className="w-full text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`height-${row.id}`} className="text-xs">
+                        Dikte (mm)
+                      </Label>
+                      <select
+                        id={`height-${row.id}`}
+                        value={row.heightMm}
+                        onChange={(e) =>
+                          updateRow(row.id, {
+                            heightMm: Number(e.target.value),
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
+                        required
+                      >
+                        {AVAILABLE_THICKNESSES.map((thickness) => (
+                          <option key={thickness} value={thickness}>
+                            {thickness} mm
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`quantity-${row.id}`} className="text-xs">
+                        Aantal
+                      </Label>
+                      <Input
+                        id={`quantity-${row.id}`}
+                        type="number"
+                        value={row.quantity}
+                        onChange={(e) =>
+                          updateRow(row.id, {
+                            quantity: Number(e.target.value),
+                          })
+                        }
+                        min="1"
+                        required
+                        className="w-full text-sm"
+                      />
+                    </div>
+                    <div className="flex items-end justify-between gap-2">
+                      <Button
+                        type="button"
+                        variant={isActive ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setActiveRowId(row.id)}
+                      >
+                        Bekijk
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={dimensionRows.length === 1}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleRemoveRow(row.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {index === dimensionRows.length - 1 && (
+                      <div className="md:col-span-5 text-xs text-muted-foreground">
+                        {dimensionRows.length > 1 && (
+                          <span>
+                            Totaal aantal stuks:{' '}
+                            {dimensionRows.reduce(
+                              (sum, r) => sum + (r.quantity || 0),
+                              0
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-1"
+                onClick={handleAddRow}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Maatregel toevoegen
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Beschikbare diktes: 19, 22, 25 mm (standaard) en 30, 38 mm
+                (+35%).
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -215,48 +439,8 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
               />
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-2"
-            >
-              <Label htmlFor="height">Dikte (mm)</Label>
-              <select
-                id="height"
-                value={heightMm}
-                onChange={(e) => setHeightMm(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
-                required
-              >
-                {AVAILABLE_THICKNESSES.map((thickness) => (
-                  <option key={thickness} value={thickness}>
-                    {thickness} mm
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">
-                Beschikbare diktes: 19, 22, 25 mm (standaard) en 30, 38 mm (+35%).
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="space-y-2"
-            >
-              <Label htmlFor="quantity">Aantal</Label>
-              <Input
-                id="quantity"
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                min="1"
-                required
-                className="w-full"
-              />
-            </motion.div>
+            {/* De enkelvoudige dikte/aantal velden zijn vervangen door de
+                tabel hierboven zodat meerdere maten mogelijk zijn. */}
           </div>
 
           <motion.div
@@ -394,7 +578,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                   ))}
                 </select>
               </div>
-              {(() => {
+            {(() => {
                 // Determine which dimensions are short and long for the selected side
                 let shortLabel = '';
                 let longLabel = '';
@@ -403,20 +587,20 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                   case CoatingSide.Top:
                   case CoatingSide.Bottom:
                     // Top/Bottom: short side is width, long side is length
-                    shortLabel = `Vanaf korte zijkant (${widthMm}mm)`;
-                    longLabel = `Vanaf lange zijkant (${lengthMm}mm)`;
+                    shortLabel = `Vanaf korte zijkant (${activeRow.widthMm}mm)`;
+                    longLabel = `Vanaf lange zijkant (${activeRow.lengthMm}mm)`;
                     break;
                   case CoatingSide.Front:
                   case CoatingSide.Back:
                     // Front/Back: short side is height, long side is length
-                    shortLabel = `Vanaf korte zijkant (${heightMm}mm)`;
-                    longLabel = `Vanaf lange zijkant (${lengthMm}mm)`;
+                    shortLabel = `Vanaf korte zijkant (${activeRow.heightMm}mm)`;
+                    longLabel = `Vanaf lange zijkant (${activeRow.lengthMm}mm)`;
                     break;
                   case CoatingSide.Left:
                   case CoatingSide.Right:
                     // Left/Right: short side is height, long side is width
-                    shortLabel = `Vanaf korte zijkant (${heightMm}mm)`;
-                    longLabel = `Vanaf lange zijkant (${widthMm}mm)`;
+                    shortLabel = `Vanaf korte zijkant (${activeRow.heightMm}mm)`;
+                    longLabel = `Vanaf lange zijkant (${activeRow.widthMm}mm)`;
                     break;
                 }
                 
@@ -511,9 +695,9 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
             </CardHeader>
             <CardContent>
               <Mdf3DPreview
-                lengthMm={lengthMm}
-                widthMm={widthMm}
-                heightMm={heightMm}
+                lengthMm={activeRow.lengthMm}
+                widthMm={activeRow.widthMm}
+                heightMm={activeRow.heightMm}
                 coatingSides={[]}
                 selectedColor={selectedColor}
                 drillPositions={drillPositions}

@@ -75,6 +75,7 @@ function MdfBoard({
           clearcoat: 0.0,
           clearcoatRoughness: 1.0,
           envMapIntensity: 0.25,
+          bumpScale: 0.35,
         };
       case MdfStructure.Leather:
         return {
@@ -82,6 +83,7 @@ function MdfBoard({
           clearcoat: 0.0,
           clearcoatRoughness: 1.0,
           envMapIntensity: 0.3,
+          bumpScale: 0.25,
         };
       case MdfStructure.Linen:
         return {
@@ -89,6 +91,7 @@ function MdfBoard({
           clearcoat: 0.0,
           clearcoatRoughness: 1.0,
           envMapIntensity: 0.25,
+          bumpScale: 0.2,
         };
       case MdfStructure.Line:
       default:
@@ -97,6 +100,7 @@ function MdfBoard({
           clearcoat: 0.0,
           clearcoatRoughness: 1.0,
           envMapIntensity: 0.3,
+          bumpScale: 0.3,
         };
     }
   })();
@@ -114,7 +118,8 @@ function MdfBoard({
         <boxGeometry args={[length, height, width]} />
         <meshPhysicalMaterial 
           color={powderCoatMaterial.color}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -129,7 +134,8 @@ function MdfBoard({
         <planeGeometry args={[length, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -143,7 +149,8 @@ function MdfBoard({
         <planeGeometry args={[length, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -157,7 +164,8 @@ function MdfBoard({
         <planeGeometry args={[length, width]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -171,7 +179,8 @@ function MdfBoard({
         <planeGeometry args={[length, width]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -185,7 +194,8 @@ function MdfBoard({
         <planeGeometry args={[width, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -199,7 +209,8 @@ function MdfBoard({
         <planeGeometry args={[width, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
-          map={surfaceTexture}
+          bumpMap={surfaceTexture}
+          bumpScale={powderCoatMaterial.bumpScale}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}

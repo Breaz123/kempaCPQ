@@ -83,9 +83,30 @@ export function PriceBreakdown({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-lg font-semibold text-[#5A4A3A]">
-                {configuration.lengthMm} × {configuration.widthMm} × {configuration.heightMm} mm
-              </p>
+              {configuration.dimensionSets && configuration.dimensionSets.length > 0 ? (
+                <div className="space-y-1 text-sm">
+                  {configuration.dimensionSets.map((set) => (
+                    <div
+                      key={set.id}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="font-medium text-[#5A4A3A]">
+                        {set.lengthMm} × {set.widthMm} × {set.heightMm} mm
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Aantal: {set.quantity}
+                      </span>
+                    </div>
+                  ))}
+                  <p className="text-xs text-muted-foreground pt-1">
+                    Totaal aantal stuks: {configuration.quantity}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-lg font-semibold text-[#5A4A3A]">
+                  {configuration.lengthMm} × {configuration.widthMm} × {configuration.heightMm} mm
+                </p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
