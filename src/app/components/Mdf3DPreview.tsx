@@ -320,8 +320,24 @@ function MdfZoomPlane({
   structure,
 }: Pick<Mdf3DPreviewProps, 'lengthMm' | 'widthMm' | 'selectedColor' | 'structure'>) {
   const baseScale = 0.01;
-  const length = lengthMm * baseScale;
-  const width = widthMm * baseScale;
+
+  // Gebruik lengte × breedte, maar beperk de beeldverhouding zodat
+  // de plaat nooit een dun lijntje wordt. Maximaal 3:1 ratio.
+  const longSideMm = Math.max(lengthMm, widthMm);
+  const shortSideMm = Math.min(lengthMm, widthMm);
+  const maxAspect = 3;
+  const adjustedShortMm =
+    shortSideMm === 0
+      ? longSideMm / maxAspect
+      : longSideMm / shortSideMm > maxAspect
+      ? longSideMm / maxAspect
+      : shortSideMm;
+
+  const visualLengthMm = longSideMm;
+  const visualWidthMm = adjustedShortMm;
+
+  const length = visualLengthMm * baseScale;
+  const width = visualWidthMm * baseScale;
 
   const textures = useTexture({
     [MdfStructure.Line]: lineTextureUrl,
