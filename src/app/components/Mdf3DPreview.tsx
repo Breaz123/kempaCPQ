@@ -6,10 +6,18 @@
 
 import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import { CoatingSide, MdfStructure } from '../../slices/configuration';
 import type { DrillPosition } from '../../slices/configuration/models/DrillPosition';
 import * as THREE from 'three';
+
+// Texture images for the 4 MDF structuren.
+// Let op: deze paden gaan ervan uit dat de bestanden in de map
+// "Foto's" in de projectroot staan met exact deze bestandsnamen.
+import lineTextureUrl from "../../../Foto's/Line.jpg";
+import stoneTextureUrl from "../../../Foto's/Stone.jpg";
+import leatherTextureUrl from "../../../Foto's/Leather.jpg";
+import linenTextureUrl from "../../../Foto's/Linen.jpg";
 
 interface Mdf3DPreviewProps {
   lengthMm: number;
@@ -39,6 +47,16 @@ function MdfBoard({
   const length = lengthMm * baseScale;
   const width = widthMm * baseScale;
   const height = heightMm * baseScale; // Same scale as length and width
+
+  // Laad de structuurfoto's als textures.
+  const textures = useTexture({
+    [MdfStructure.Line]: lineTextureUrl,
+    [MdfStructure.Stone]: stoneTextureUrl,
+    [MdfStructure.Leather]: leatherTextureUrl,
+    [MdfStructure.Linen]: linenTextureUrl,
+  });
+
+  const surfaceTexture = structure ? textures[structure] : undefined;
 
   // Powder coating: always use the selected color for all sides
   // The entire board is powder coated with the same color
@@ -96,6 +114,7 @@ function MdfBoard({
         <boxGeometry args={[length, height, width]} />
         <meshPhysicalMaterial 
           color={powderCoatMaterial.color}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -110,6 +129,7 @@ function MdfBoard({
         <planeGeometry args={[length, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -123,6 +143,7 @@ function MdfBoard({
         <planeGeometry args={[length, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -136,6 +157,7 @@ function MdfBoard({
         <planeGeometry args={[length, width]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -149,6 +171,7 @@ function MdfBoard({
         <planeGeometry args={[length, width]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -162,6 +185,7 @@ function MdfBoard({
         <planeGeometry args={[width, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
@@ -175,6 +199,7 @@ function MdfBoard({
         <planeGeometry args={[width, height]} />
         <meshPhysicalMaterial 
           color={getSideColor()}
+          map={surfaceTexture}
           roughness={powderCoatMaterial.roughness}
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
