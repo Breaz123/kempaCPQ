@@ -402,47 +402,6 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-2"
-            >
-              <Label htmlFor="length">Lengte (mm)</Label>
-              <Input
-                id="length"
-                type="number"
-                value={lengthMm}
-                onChange={(e) => setLengthMm(Number(e.target.value))}
-                min="1"
-                required
-                className="w-full"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-2"
-            >
-              <Label htmlFor="width">Breedte (mm)</Label>
-              <Input
-                id="width"
-                type="number"
-                value={widthMm}
-                onChange={(e) => setWidthMm(Number(e.target.value))}
-                min="1"
-                required
-                className="w-full"
-              />
-            </motion.div>
-
-            {/* De enkelvoudige dikte/aantal velden zijn vervangen door de
-                tabel hierboven zodat meerdere maten mogelijk zijn. */}
-          </div>
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

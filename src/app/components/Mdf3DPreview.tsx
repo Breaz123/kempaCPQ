@@ -337,13 +337,12 @@ export function Mdf3DPreview({
           position={[cameraDistance, cameraDistance * 0.6, cameraDistance]} 
           fov={50} 
         />
-        {/* Enhanced lighting for powder coating finish */}
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1.2} />
-        <directionalLight position={[-10, 10, -5]} intensity={0.6} />
-        <directionalLight position={[0, 10, 0]} intensity={0.8} />
-        <pointLight position={[5, 5, 5]} intensity={0.4} />
-        <pointLight position={[-5, 5, -5]} intensity={0.3} />
+        {/* Neutrale, zachte belichting zodat de kleur
+            zo dicht mogelijk bij de gekozen Kempa-kleur
+            blijft en niet te donker oogt. */}
+        <ambientLight intensity={1.1} />
+        <directionalLight position={[10, 10, 5]} intensity={0.3} />
+        <directionalLight position={[-10, 10, -5]} intensity={0.2} />
         
         <MdfBoard
           lengthMm={lengthMm}
