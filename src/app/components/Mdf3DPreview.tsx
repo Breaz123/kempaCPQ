@@ -6,7 +6,7 @@
 
 import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, OrthographicCamera, useTexture } from '@react-three/drei';
 import { CoatingSide, MdfStructure } from '../../slices/configuration';
 import type { DrillPosition } from '../../slices/configuration/models/DrillPosition';
 import * as THREE from 'three';
@@ -382,10 +382,12 @@ export function Mdf3DPreview({
       {/* Tweede, ingezoomde structuur-preview */}
       <div className="w-full h-[220px] rounded-lg border border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
         <Canvas>
-          <PerspectiveCamera
+          {/* Orthografische camera recht op de voorkant van de plaat,
+              zodat de structuur altijd vlak en zonder perspectief te zien is. */}
+          <OrthographicCamera
             makeDefault
             position={[0, 0, zoomCameraDistance]}
-            fov={20}
+            zoom={40}
           />
           <ambientLight intensity={1.1} />
           <directionalLight position={[5, 5, 5]} intensity={0.4} />
@@ -400,12 +402,7 @@ export function Mdf3DPreview({
             structure={structure}
           />
 
-          {/* Vast ingezoomde weergave: geen interactie nodig */}
-          <OrbitControls
-            enablePan={false}
-            enableZoom={false}
-            enableRotate={false}
-          />
+          {/* Vast ingezoomde, frontale weergave: geen interactie nodig */}
         </Canvas>
 
         <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-xs text-gray-600 z-10">
