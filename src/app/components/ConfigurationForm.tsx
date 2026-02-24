@@ -517,6 +517,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                 coatingSides={[]}
                 selectedColor={selectedColor}
                 drillPositions={drillPositions}
+                structure={structure}
               />
             </CardContent>
           </Card>

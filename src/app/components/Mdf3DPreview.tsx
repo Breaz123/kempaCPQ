@@ -7,7 +7,7 @@
 import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import { CoatingSide } from '../../slices/configuration';
+import { CoatingSide, MdfStructure } from '../../slices/configuration';
 import type { DrillPosition } from '../../slices/configuration/models/DrillPosition';
 import * as THREE from 'three';
 
@@ -18,6 +18,7 @@ interface Mdf3DPreviewProps {
   coatingSides: CoatingSide[];
   selectedColor?: string;
   drillPositions?: DrillPosition[];
+  structure?: MdfStructure;
 }
 
 // MDF Board component
@@ -27,7 +28,8 @@ function MdfBoard({
   heightMm, 
   coatingSides,
   selectedColor = '#FF6B6B',
-  drillPositions = []
+  drillPositions = [],
+  structure,
 }: Mdf3DPreviewProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   
@@ -44,14 +46,47 @@ function MdfBoard({
     return selectedColor;
   };
 
-  // High-end powder coating material properties
-  // Powder coating has a smooth, glossy finish with subtle reflections
+  // Powder coating material properties per Kempa-structuur.
+  // We vermijden hier bewust hoge glans (geen clearcoat) en gebruiken de structuur
+  // om de ruwheid en lichtreflectie te bepalen.
+  const baseMaterial = (() => {
+    switch (structure) {
+      case MdfStructure.Stone:
+        return {
+          roughness: 0.9,      // sterk matte, korrelige look
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.25,
+        };
+      case MdfStructure.Leather:
+        return {
+          roughness: 0.8,      // zacht, licht diffuus
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.3,
+        };
+      case MdfStructure.Linen:
+        return {
+          roughness: 0.85,     // fijne textuur, weinig glans
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.25,
+        };
+      case MdfStructure.Line:
+      default:
+        return {
+          roughness: 0.75,     // iets strakker maar nog steeds mat
+          clearcoat: 0.0,
+          clearcoatRoughness: 1.0,
+          envMapIntensity: 0.3,
+        };
+    }
+  })();
+
   const powderCoatMaterial = {
     color: selectedColor,
-    roughness: 0.15, // Very smooth surface (low roughness = more glossy)
     metalness: 0.0, // Non-metallic powder coating
-    clearcoat: 1.0, // Clear coat layer for extra gloss
-    clearcoatRoughness: 0.1, // Smooth clear coat
+    ...baseMaterial,
   };
 
   return (
@@ -65,7 +100,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
       
@@ -79,7 +114,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
 
@@ -92,7 +127,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
 
@@ -105,7 +140,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
 
@@ -118,7 +153,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
 
@@ -131,7 +166,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
 
@@ -144,7 +179,7 @@ function MdfBoard({
           metalness={powderCoatMaterial.metalness}
           clearcoat={powderCoatMaterial.clearcoat}
           clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
-          envMapIntensity={1.2}
+          envMapIntensity={powderCoatMaterial.envMapIntensity}
         />
       </mesh>
       
@@ -246,7 +281,8 @@ export function Mdf3DPreview({
   heightMm,
   coatingSides,
   selectedColor = '#FF6B6B',
-  drillPositions = []
+  drillPositions = [],
+  structure,
 }: Mdf3DPreviewProps) {
   // Calculate camera distance based on board size
   const baseScale = 0.01;
@@ -280,6 +316,7 @@ export function Mdf3DPreview({
           coatingSides={coatingSides}
           selectedColor={selectedColor}
           drillPositions={drillPositions}
+          structure={structure}
         />
         
         <OrbitControls
