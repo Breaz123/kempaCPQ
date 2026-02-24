@@ -4,7 +4,7 @@
  * Interactive 3D preview of MDF board with rotation and scaling capabilities.
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, OrthographicCamera, useTexture } from '@react-three/drei';
 import { CoatingSide, MdfStructure } from '../../slices/configuration';
@@ -427,6 +427,14 @@ export function Mdf3DPreview({
   drillPositions = [],
   structure,
 }: Mdf3DPreviewProps) {
+  const [lensState, setLensState] = useState<{
+    x: number;
+    y: number;
+    bgX: number;
+    bgY: number;
+  } | null>(null);
+  const zoomContainerRef = useRef<HTMLDivElement | null>(null);
+
   // Bepaal de afmetingen in 3D-units (voor verhouding),
   // maar houd de camera-afstand grotendeels vast zodat
   // een grotere plaat ook echt groter in beeld komt.
@@ -444,6 +452,40 @@ export function Mdf3DPreview({
 
   // Voor de ingezoomde structuur-view gebruiken we een vaste, vrij korte afstand.
   const zoomCameraDistance = 14;
+
+  // Bepaal de bijbehorende structuur-URL voor de vergrootglas-overlay.
+  const structureTextureUrl =
+    structure != null
+      ? {
+          [MdfStructure.Line]: lineTextureUrl as any,
+          [MdfStructure.Stone]: stoneTextureUrl as any,
+          [MdfStructure.Leather]: leatherTextureUrl as any,
+          [MdfStructure.Linen]: linenTextureUrl as any,
+        }[structure]
+      : undefined;
+
+  const structureTextureSrc =
+    typeof structureTextureUrl === 'string'
+      ? structureTextureUrl
+      : (structureTextureUrl as any)?.src ?? '';
+
+  const handleLensMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!zoomContainerRef.current) return;
+    const rect = zoomContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const clamp = (v: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, v));
+    const nx = clamp(x / rect.width, 0, 1);
+    const ny = clamp(y / rect.height, 0, 1);
+
+    setLensState({
+      x,
+      y,
+      bgX: nx * 100,
+      bgY: ny * 100,
+    });
+  };
   
   return (
     <div className="space-y-4">
@@ -487,7 +529,12 @@ export function Mdf3DPreview({
       </div>
 
       {/* Tweede, ingezoomde structuur-preview */}
-      <div className="w-full h-[220px] rounded-lg border border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
+      <div
+        className="w-full h-[220px] rounded-lg border border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative"
+        ref={zoomContainerRef}
+        onMouseMove={handleLensMove}
+        onMouseLeave={() => setLensState(null)}
+      >
         <Canvas>
           {/* Orthografische camera recht op de voorkant van de plaat,
               zodat de structuur altijd vlak en zonder perspectief te zien is. */}
@@ -508,6 +555,23 @@ export function Mdf3DPreview({
 
           {/* Vast ingezoomde, frontale weergave: geen interactie nodig */}
         </Canvas>
+
+        {/* Vergrootglas-overlay bij hover voor extra structuur-zoom */}
+        {lensState && structureTextureSrc && (
+          <div
+            className="pointer-events-none absolute rounded-full border border-white shadow-lg bg-white/30 backdrop-blur-sm"
+            style={{
+              width: 120,
+              height: 120,
+              left: lensState.x - 60,
+              top: lensState.y - 60,
+              backgroundImage: `url(${structureTextureSrc})`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '250% 250%',
+              backgroundPosition: `${lensState.bgX}% ${lensState.bgY}%`,
+            }}
+          />
+        )}
 
         <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-xs text-gray-600 z-10">
           <p>Ingezoomde weergave van de gekozen structuur</p>
