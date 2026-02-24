@@ -320,15 +320,23 @@ export function Mdf3DPreview({
   drillPositions = [],
   structure,
 }: Mdf3DPreviewProps) {
-  // Calculate camera distance based on board size
+  // Bepaal de afmetingen in 3D-units (voor verhouding),
+  // maar houd de camera-afstand grotendeels vast zodat
+  // een grotere plaat ook echt groter in beeld komt.
   const baseScale = 0.01;
   const maxDimension = Math.max(
     lengthMm * baseScale,
     widthMm * baseScale,
     heightMm * baseScale
   );
-  const cameraDistance = Math.max(15, maxDimension * 3);
-  const zoomCameraDistance = Math.max(5, maxDimension * 1.2);
+
+  // Basisafstand voor de hoofdcamera: vaste waarde met lichte correctie,
+  // zodat grotere platen iets meer ruimte krijgen maar nog steeds groter ogen.
+  const baseCameraDistance = 22;
+  const cameraDistance = baseCameraDistance + maxDimension * 0.5;
+
+  // Voor de ingezoomde structuur-view gebruiken we een vaste, vrij korte afstand.
+  const zoomCameraDistance = 14;
   
   return (
     <div className="space-y-4">
@@ -361,8 +369,8 @@ export function Mdf3DPreview({
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={maxDimension * 1.5}
-            maxDistance={maxDimension * 8}
+            minDistance={cameraDistance * 0.4}
+            maxDistance={cameraDistance * 2.2}
           />
         </Canvas>
 

@@ -246,7 +246,7 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="space-y-8">
         <div className="space-y-6">
           <div className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
@@ -517,6 +517,33 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
             </p>
           </motion.div>
 
+          {/* 3D preview direct onder structuur-sectie */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.55 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>3D Preview</CardTitle>
+                <CardDescription>
+                  Bekijk uw MDF plaat in 3D met de gekozen instellingen
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Mdf3DPreview
+                  lengthMm={activeRow.lengthMm}
+                  widthMm={activeRow.widthMm}
+                  heightMm={activeRow.heightMm}
+                  coatingSides={[]}
+                  selectedColor={selectedColor}
+                  drillPositions={drillPositions}
+                  structure={structure}
+                />
+              </CardContent>
+            </Card>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -652,32 +679,6 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
             )}
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>3D Preview</CardTitle>
-              <CardDescription>
-                Bekijk uw MDF plaat in 3D met de gekozen instellingen
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Mdf3DPreview
-                lengthMm={activeRow.lengthMm}
-                widthMm={activeRow.widthMm}
-                heightMm={activeRow.heightMm}
-                coatingSides={[]}
-                selectedColor={selectedColor}
-                drillPositions={drillPositions}
-                structure={structure}
-              />
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
 
       <motion.div
