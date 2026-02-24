@@ -5,7 +5,7 @@
  * Wordt gebruikt in zowel de interne CPQ-app als de customer-app.
  *
  * Formule (Kempa uitgangspunt):
- * - Basisprijs: €166 / m² (catalogusprijs)
+ * - Basisprijs: €135 / m²
  * - Oppervlakte per stuk: lengte × breedte (alleen frontvlak), omgerekend naar m²
  * - Minimumoppervlakte per stuk: 0,15 m²
  * - Dikte 30mm of 38mm: +35% op m²-prijs
@@ -38,8 +38,8 @@ export interface PoederlakPriceCalculation {
   thicknessFactor: number;
 }
 
-/** Standaard catalogusprijs per m² voor poederlak */
-export const DEFAULT_POEDERLAK_PRICE_PER_M2 = 166;
+/** Standaard prijs per m² voor poederlak */
+export const DEFAULT_POEDERLAK_PRICE_PER_M2 = 135;
 
 /** Minimumoppervlakte per stuk in m² (0,15 m²) */
 export const MIN_AREA_PER_PIECE_M2 = 0.15;
@@ -57,7 +57,7 @@ export const THICKNESS_SURCHARGE_FACTOR = 1.35;
 export function calculatePoederlakPrice(
   config: MdfConfiguration,
   options?: {
-    /** Optionele override voor basis m²-prijs (standaard: 166 €/m²) */
+    /** Optionele override voor basis m²-prijs (standaard: 135 €/m²) */
     basePricePerM2?: number;
   }
 ): PoederlakPriceCalculation {
