@@ -7,7 +7,7 @@
 
 // Models
 export type { MdfConfiguration } from './models/MdfConfiguration';
-export { CoatingSide, createMdfConfiguration } from './models/MdfConfiguration';
+export { CoatingSide, MdfStructure, createMdfConfiguration } from './models/MdfConfiguration';
 
 export type { ValidationError, ValidationResult } from './models/ValidationError';
 export { createValidResult, createInvalidResult, createFieldError } from './models/ValidationError';

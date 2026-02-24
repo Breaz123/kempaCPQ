@@ -18,6 +18,7 @@ export interface MdfConfiguration {
   heightMm: number;
   quantity: number;
   coatingSides: string[];
+  structure?: string;
   createdAt: string | Date;
   updatedAt: string | Date;
 }

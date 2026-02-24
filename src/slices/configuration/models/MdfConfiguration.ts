@@ -20,6 +20,22 @@ export enum CoatingSide {
 }
 
 /**
+ * Available surface structures for MDF powder coating
+ *
+ * These correspond to the Kempa structuren:
+ * - Line
+ * - Stone
+ * - Leather
+ * - Linen
+ */
+export enum MdfStructure {
+  Line = 'line',
+  Stone = 'stone',
+  Leather = 'leather',
+  Linen = 'linen',
+}
+
+/**
  * Configuration for MDF powder coating
  * 
  * Dimensions are in millimeters (mm) for user input precision.
@@ -43,6 +59,9 @@ export interface MdfConfiguration {
   
   /** Sides that need powder coating */
   coatingSides: CoatingSide[];
+
+  /** Optional: Surface structure (Line, Stone, Leather, Linen) */
+  structure?: MdfStructure;
   
   /** Optional: Drill positions for holes (handles, hinges, etc.) */
   drillPositions?: DrillPosition[];

@@ -27,6 +27,7 @@ export const mdfConfigurationSchema = z.object({
   heightMm: z.number().positive('Height must be positive'),
   quantity: z.number().int().positive('Quantity must be a positive integer'),
   coatingSides: z.array(z.string()).min(1, 'At least one coating side is required'),
+   structure: z.string().optional(),
   createdAt: z.union([z.string(), z.date()]),
   updatedAt: z.union([z.string(), z.date()]),
 });

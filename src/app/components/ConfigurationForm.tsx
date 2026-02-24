@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MdfConfiguration, CoatingSide, createMdfConfiguration, validateMdfConfiguration } from '../../slices/configuration';
+import { MdfConfiguration, CoatingSide, MdfStructure, createMdfConfiguration, validateMdfConfiguration } from '../../slices/configuration';
 import { DrillPosition, createDrillPosition } from '../../slices/configuration/models/DrillPosition';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,12 +65,23 @@ const BASE_COLORS = [
   { name: 'Misty Blue (KP-U502)', value: '#6C7E80' },
 ];
 
+// Kempa MDF structuren
+const STRUCTURE_OPTIONS: { id: MdfStructure; label: string; description: string }[] = [
+  { id: MdfStructure.Line, label: 'Line', description: 'Verticale lijnen voor een strak, ritmisch effect.' },
+  { id: MdfStructure.Stone, label: 'Stone', description: 'Licht korrelige structuur met een steenachtige uitstraling.' },
+  { id: MdfStructure.Leather, label: 'Leather', description: 'Zachte, lederachtige structuur met subtiele beweging.' },
+  { id: MdfStructure.Linen, label: 'Linen', description: 'Fijne linnenstructuur voor een rustige, textiele look.' },
+];
+
 export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
   const [lengthMm, setLengthMm] = useState<number>(1000);
   const [widthMm, setWidthMm] = useState<number>(500);
-  const [heightMm, setHeightMm] = useState<number>(18);
+  // Dikte: vaste waarden volgens Kempa-catalogus (19, 22, 25, 30, 38 mm)
+  const AVAILABLE_THICKNESSES = [19, 22, 25, 30, 38] as const;
+  const [heightMm, setHeightMm] = useState<number>(AVAILABLE_THICKNESSES[0]);
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedColor, setSelectedColor] = useState<string>(BASE_COLORS[0].value);
+  const [structure, setStructure] = useState<MdfStructure>(MdfStructure.Line);
   const [drillPositions, setDrillPositions] = useState<DrillPosition[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   
@@ -124,6 +135,9 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
       quantity,
       allSides // Always coat all sides
     );
+
+    // Attach selected structure to configuration for pricing/quote context
+    (config as MdfConfiguration).structure = structure;
     
     // Add drill positions to config
     if (drillPositions.length > 0) {
@@ -207,16 +221,23 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
               transition={{ delay: 0.3 }}
               className="space-y-2"
             >
-              <Label htmlFor="height">Hoogte/Dikte (mm)</Label>
-              <Input
+              <Label htmlFor="height">Dikte (mm)</Label>
+              <select
                 id="height"
-                type="number"
                 value={heightMm}
                 onChange={(e) => setHeightMm(Number(e.target.value))}
-                min="1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
                 required
-                className="w-full"
-              />
+              >
+                {AVAILABLE_THICKNESSES.map((thickness) => (
+                  <option key={thickness} value={thickness}>
+                    {thickness} mm
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Beschikbare diktes: 19, 22, 25 mm (standaard) en 30, 38 mm (+35%).
+              </p>
             </motion.div>
 
             <motion.div
@@ -297,6 +318,46 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
             <p className="text-xs text-muted-foreground mt-1">
               Deze kleuren zijn benaderingen op scherm; door het verschil in afwerkingsproduct kan
               tussen poederlak en structuurlak een klein kleur- of glansgraadverschil optreden.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-3"
+          >
+            <Label>Structuur</Label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {STRUCTURE_OPTIONS.map((option, index) => {
+                const isSelected = structure === option.id;
+
+                return (
+                  <motion.button
+                    key={option.id}
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.55 + index * 0.05 }}
+                    onClick={() => setStructure(option.id)}
+                    className={`
+                      h-20 rounded-xl border-2 px-3 py-2 text-left flex flex-col justify-between bg-white transition-all cursor-pointer
+                      ${isSelected
+                        ? 'border-primary ring-2 ring-primary ring-offset-2 shadow-md'
+                        : 'border-gray-200 hover:border-primary/50 hover:shadow-sm'
+                      }
+                    `}
+                  >
+                    <span className="font-medium text-sm text-gray-900">{option.label}</span>
+                    <span className="text-xs text-muted-foreground line-clamp-2">
+                      {option.description}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Kies de gewenste oppervlaktestructuur. Alle structuren zijn beschikbaar in dezelfde kleuren.
             </p>
           </motion.div>
 

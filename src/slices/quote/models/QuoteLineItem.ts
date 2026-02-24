@@ -5,7 +5,7 @@
  * and pricing information with a clear, human-readable description.
  */
 
-import { MdfConfiguration } from '../../configuration/models/MdfConfiguration';
+import { MdfConfiguration, MdfStructure } from '../../configuration/models/MdfConfiguration';
 
 /**
  * A single line item in a quote
@@ -110,7 +110,14 @@ export function generateLineDescription(
 ): string {
   const dimensions = `${configuration.lengthMm}×${configuration.widthMm}×${configuration.heightMm}mm`;
   const sides = formatCoatingSides(configuration.coatingSides);
-  return `${productName} - ${dimensions} - ${sides} - Qty: ${configuration.quantity}`;
+
+  let structurePart = '';
+  if (configuration.structure) {
+    const structureLabel = formatStructure(configuration.structure);
+    structurePart = ` - Structuur: ${structureLabel}`;
+  }
+
+  return `${productName} - ${dimensions} - ${sides}${structurePart} - Qty: ${configuration.quantity}`;
 }
 
 /**
@@ -124,6 +131,20 @@ function formatCoatingSides(sides: string[]): string {
     return 'No sides';
   }
   return sides.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ');
+}
+
+/**
+ * Formats structure enum into a readable label
+ */
+function formatStructure(structure: MdfStructure): string {
+  const map: Record<MdfStructure, string> = {
+    [MdfStructure.Line]: 'Line',
+    [MdfStructure.Stone]: 'Stone',
+    [MdfStructure.Leather]: 'Leather',
+    [MdfStructure.Linen]: 'Linen',
+  };
+
+  return map[structure] ?? String(structure);
 }
 
 /**
