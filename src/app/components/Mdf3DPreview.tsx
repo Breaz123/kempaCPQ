@@ -405,7 +405,6 @@ function MdfZoomPlane({
       <planeGeometry args={[length, width]} />
       <meshPhysicalMaterial
         color={materialProps.color}
-        map={surfaceTexture}
         bumpMap={surfaceTexture}
         bumpScale={materialProps.bumpScale * 1.2}
         roughness={materialProps.roughness}
