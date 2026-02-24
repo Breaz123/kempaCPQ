@@ -8,6 +8,7 @@ import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { CoatingSide } from '../../slices/configuration';
+import type { DrillPosition } from '../../slices/configuration/models/DrillPosition';
 import * as THREE from 'three';
 
 interface Mdf3DPreviewProps {
@@ -15,7 +16,8 @@ interface Mdf3DPreviewProps {
   widthMm: number;
   heightMm: number;
   coatingSides: CoatingSide[];
-  numberOfColors?: number;
+  selectedColor?: string;
+  drillPositions?: DrillPosition[];
 }
 
 // MDF Board component
@@ -24,113 +26,216 @@ function MdfBoard({
   widthMm, 
   heightMm, 
   coatingSides,
-  numberOfColors = 1 
+  selectedColor = '#FF6B6B',
+  drillPositions = []
 }: Mdf3DPreviewProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   
   // Convert mm to 3D units (scale down for visualization)
-  // Using a scale factor to make it visible in 3D space
-  const scale = 0.01; // 1mm = 0.01 units in 3D
-  const length = lengthMm * scale;
-  const width = widthMm * scale;
-  const height = heightMm * scale;
+  // All dimensions use the same scale for accurate proportions
+  const baseScale = 0.01; // 1mm = 0.01 units in 3D
+  const length = lengthMm * baseScale;
+  const width = widthMm * baseScale;
+  const height = heightMm * baseScale; // Same scale as length and width
 
-  // Determine colors for each side based on coatingSides and numberOfColors
-  const getSideColor = (side: CoatingSide): string => {
-    if (!coatingSides.includes(side)) {
-      return '#8B7355'; // Natural MDF brown color
-    }
-    
-    // Generate colors based on numberOfColors
-    const colors = [
-      '#FF6B6B', // Red
-      '#4ECDC4', // Teal
-      '#45B7D1', // Blue
-      '#FFA07A', // Light Salmon
-      '#98D8C8', // Mint
-      '#F7DC6F', // Yellow
-    ];
-    
-    const sideIndex = Object.values(CoatingSide).indexOf(side);
-    const colorIndex = numberOfColors > 1 
-      ? sideIndex % numberOfColors 
-      : 0;
-    
-    return colors[colorIndex] || '#FF6B6B';
+  // Powder coating: always use the selected color for all sides
+  // The entire board is powder coated with the same color
+  const getSideColor = (): string => {
+    return selectedColor;
+  };
+
+  // High-end powder coating material properties
+  // Powder coating has a smooth, glossy finish with subtle reflections
+  const powderCoatMaterial = {
+    color: selectedColor,
+    roughness: 0.15, // Very smooth surface (low roughness = more glossy)
+    metalness: 0.0, // Non-metallic powder coating
+    clearcoat: 1.0, // Clear coat layer for extra gloss
+    clearcoatRoughness: 0.1, // Smooth clear coat
   };
 
   return (
     <group>
-      {/* Main MDF board with different materials for each face */}
+      {/* Main MDF board with powder coating - high-end finish */}
       <mesh ref={meshRef} position={[0, 0, 0]}>
         <boxGeometry args={[length, height, width]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Front)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={powderCoatMaterial.color}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
       
-      {/* Overlay planes for each side to show different colors */}
+      {/* Overlay planes for each side with powder coating finish */}
       {/* Front */}
       <mesh position={[0, 0, width / 2 + 0.001]}>
         <planeGeometry args={[length, height]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Front)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={getSideColor()}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
 
       {/* Back */}
       <mesh position={[0, 0, -width / 2 - 0.001]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[length, height]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Back)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={getSideColor()}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
 
       {/* Top */}
       <mesh position={[0, height / 2 + 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[length, width]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Top)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={getSideColor()}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
 
       {/* Bottom */}
       <mesh position={[0, -height / 2 - 0.001, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[length, width]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Bottom)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={getSideColor()}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
 
       {/* Left */}
       <mesh position={[-length / 2 - 0.001, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[width, height]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Left)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={getSideColor()}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
 
       {/* Right */}
       <mesh position={[length / 2 + 0.001, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
         <planeGeometry args={[width, height]} />
-        <meshStandardMaterial 
-          color={getSideColor(CoatingSide.Right)}
-          roughness={0.7}
-          metalness={0.1}
+        <meshPhysicalMaterial 
+          color={getSideColor()}
+          roughness={powderCoatMaterial.roughness}
+          metalness={powderCoatMaterial.metalness}
+          clearcoat={powderCoatMaterial.clearcoat}
+          clearcoatRoughness={powderCoatMaterial.clearcoatRoughness}
+          envMapIntensity={1.2}
         />
       </mesh>
+      
+      {/* Drill holes - visible as dark circles on the surface */}
+      {drillPositions.map((drill) => {
+        // Make holes MUCH more visible - use 20mm diameter minimum
+        const diameterMm = Math.max(drill.diameterMm || 20, 20);
+        const radius = (diameterMm * baseScale) / 2;
+        
+        // Convert cm to mm, then to 3D units
+        // pos1 = distance from short side, pos2 = distance from long side
+        const pos1Mm = drill.position1Cm * 10; // cm to mm
+        const pos2Mm = drill.position2Cm * 10; // cm to mm
+        const pos1 = pos1Mm * baseScale;
+        const pos2 = pos2Mm * baseScale;
+        
+        // Calculate position based on which side
+        // Coordinate system: center is (0,0,0), board extends from -length/2 to +length/2 (x), etc.
+        // Overlay planes are at: Front z=width/2+0.001, Back z=-width/2-0.001, etc.
+        // Holes must be rendered ABOVE the overlay planes to be visible
+        let position: [number, number, number] = [0, 0, 0];
+        let rotation: [number, number, number] = [0, 0, 0];
+        const offset = 0.005; // Offset to render holes above overlay planes
+        
+        switch (drill.side) {
+          case CoatingSide.Front:
+            // Front face: short side = height (y), long side = length (x)
+            // pos1 = from short side (top edge, y), pos2 = from long side (left edge, x)
+            // Front overlay is at z = width/2 + 0.001, so hole at z = width/2 + 0.001 + offset
+            position = [-length / 2 + pos2, height / 2 - pos1, width / 2 + 0.001 + offset];
+            rotation = [0, 0, 0];
+            break;
+          case CoatingSide.Back:
+            // Back face: short side = height (y), long side = length (x)
+            // Back overlay is at z = -width/2 - 0.001, so hole at z = -width/2 - 0.001 - offset
+            position = [length / 2 - pos2, height / 2 - pos1, -width / 2 - 0.001 - offset];
+            rotation = [0, Math.PI, 0];
+            break;
+          case CoatingSide.Top:
+            // Top face: short side = width (z), long side = length (x)
+            // Top overlay is at y = height/2 + 0.001, so hole at y = height/2 + 0.001 + offset
+            position = [-length / 2 + pos2, height / 2 + 0.001 + offset, width / 2 - pos1];
+            rotation = [-Math.PI / 2, 0, 0];
+            break;
+          case CoatingSide.Bottom:
+            // Bottom overlay is at y = -height/2 - 0.001, so hole at y = -height/2 - 0.001 - offset
+            position = [-length / 2 + pos2, -height / 2 - 0.001 - offset, width / 2 - pos1];
+            rotation = [Math.PI / 2, 0, 0];
+            break;
+          case CoatingSide.Left:
+            // Left face: short side = height (y), long side = width (z)
+            // Left overlay is at x = -length/2 - 0.001, so hole at x = -length/2 - 0.001 - offset
+            position = [-length / 2 - 0.001 - offset, height / 2 - pos1, width / 2 - pos2];
+            rotation = [0, Math.PI / 2, 0];
+            break;
+          case CoatingSide.Right:
+            // Right overlay is at x = length/2 + 0.001, so hole at x = length/2 + 0.001 + offset
+            position = [length / 2 + 0.001 + offset, height / 2 - pos1, width / 2 - pos2];
+            rotation = [0, -Math.PI / 2, 0];
+            break;
+        }
+        
+        return (
+          <group key={drill.id}>
+            {/* Large dark circle on surface - VERY visible, rendered above overlay */}
+            <mesh position={position} rotation={rotation}>
+              <cylinderGeometry args={[radius, radius, 0.01, 32]} />
+              <meshStandardMaterial 
+                color="#000000" 
+                roughness={0.0}
+                metalness={0.0}
+                emissive="#000000"
+                emissiveIntensity={1}
+                depthWrite={false}
+              />
+            </mesh>
+            {/* Inner darker circle for contrast */}
+            <mesh position={position} rotation={rotation}>
+              <cylinderGeometry args={[radius * 0.8, radius * 0.8, 0.012, 32]} />
+              <meshStandardMaterial 
+                color="#000000" 
+                roughness={0.0}
+                metalness={0.0}
+                emissive="#000000"
+                emissiveIntensity={2}
+                depthWrite={false}
+              />
+            </mesh>
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -140,35 +245,50 @@ export function Mdf3DPreview({
   widthMm,
   heightMm,
   coatingSides,
-  numberOfColors = 1
+  selectedColor = '#FF6B6B',
+  drillPositions = []
 }: Mdf3DPreviewProps) {
+  // Calculate camera distance based on board size
+  const baseScale = 0.01;
+  const maxDimension = Math.max(
+    lengthMm * baseScale, 
+    widthMm * baseScale, 
+    heightMm * baseScale
+  );
+  const cameraDistance = Math.max(15, maxDimension * 3);
+  
   return (
     <div className="w-full h-[400px] rounded-lg border-2 border-[#D4C4B0] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
       <Canvas>
-        <PerspectiveCamera makeDefault position={[15, 10, 15]} fov={50} />
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[10, 10, 5]} intensity={0.8} />
-        <directionalLight position={[-10, -10, -5]} intensity={0.4} />
-        <pointLight position={[0, 10, 0]} intensity={0.5} />
+        <PerspectiveCamera 
+          makeDefault 
+          position={[cameraDistance, cameraDistance * 0.6, cameraDistance]} 
+          fov={50} 
+        />
+        {/* Enhanced lighting for powder coating finish */}
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1.2} />
+        <directionalLight position={[-10, 10, -5]} intensity={0.6} />
+        <directionalLight position={[0, 10, 0]} intensity={0.8} />
+        <pointLight position={[5, 5, 5]} intensity={0.4} />
+        <pointLight position={[-5, 5, -5]} intensity={0.3} />
         
         <MdfBoard
           lengthMm={lengthMm}
           widthMm={widthMm}
           heightMm={heightMm}
           coatingSides={coatingSides}
-          numberOfColors={numberOfColors}
+          selectedColor={selectedColor}
+          drillPositions={drillPositions}
         />
         
         <OrbitControls
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
-          minDistance={5}
-          maxDistance={50}
+          minDistance={maxDimension * 1.5}
+          maxDistance={maxDimension * 8}
         />
-        
-        {/* Grid helper for reference */}
-        <gridHelper args={[30, 30, '#D4C4B0', '#E8DDD0']} />
       </Canvas>
       
       <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-xs text-gray-600 z-10">

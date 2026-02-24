@@ -7,8 +7,15 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import quoteRequestsRouter from './routes/quote-requests.js';
 import healthRouter from './routes/health.js';
+import authRouter from './routes/auth.js';
+import catalogRouter from './routes/catalog.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -95,6 +102,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from customer-app public folder
+// This ensures images are always accessible, even if Vite doesn't serve them correctly
+const publicPath = path.join(__dirname, '../../src/customer-app/public');
+app.use('/images', express.static(path.join(publicPath, 'images')));
+
 // Request logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -104,6 +116,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Routes
 app.use('/api/health', healthRouter);
 app.use('/api/quote-requests', quoteRequestsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/catalog', catalogRouter);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
@@ -113,6 +127,8 @@ app.get('/', (req: Request, res: Response) => {
     endpoints: {
       health: '/api/health',
       quoteRequests: '/api/quote-requests',
+      auth: '/api/auth',
+      catalog: '/api/catalog',
     },
   });
 });

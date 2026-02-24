@@ -232,7 +232,7 @@ export function useCustomerCpqApi() {
         }
 
         if (!result.success) {
-          throw new Error(result.error || 'De aanvraag kon niet worden verwerkt.');
+          throw new Error('De aanvraag kon niet worden verwerkt.');
         }
 
         if (!result.data) {

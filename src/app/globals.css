@@ -32,6 +32,8 @@
     /* Accent: Warm wood brown (#8B6F47 / hsl(30, 33%, 42%)) */
     --accent: 30 33% 42%;
     --accent-foreground: 0 0% 98%;
+    /* Maroon overlay color from image (#8B3A3A / hsl(0, 42%, 38%)) */
+    --maroon: 0 42% 38%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     /* Border: Warm light brown (#D4C4B0 / hsl(30, 20%, 75%)) */

@@ -53,11 +53,46 @@ npm run prisma:migrate
 
 ### 4. Environment Variables
 
-Kopieer `.env.example` naar `.env` en vul de waarden in:
+Maak een `.env` bestand aan met de volgende variabelen:
 
-```bash
-cp .env.example .env
+```env
+# Database
+DATABASE_URL="file:./dev.db"
+
+# Server
+PORT=3001
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173,http://localhost:5174
+
+# Storage Configuration
+# Options: 'local' or 'cloudinary'
+STORAGE_TYPE=local
+
+# Cloudinary Configuration (only needed if STORAGE_TYPE=cloudinary)
+# Get these from https://cloudinary.com/console
+# CLOUDINARY_CLOUD_NAME=your_cloud_name
+# CLOUDINARY_API_KEY=your_api_key
+# CLOUDINARY_API_SECRET=your_api_secret
 ```
+
+#### Storage Options
+
+**Lokale opslag (default):**
+- Foto's worden opgeslagen in `src/customer-app/public/images/poederlak/`
+- Werkt direct zonder extra configuratie
+- Geschikt voor development
+
+**Cloudinary (aanbevolen voor productie):**
+1. Maak een gratis account op [cloudinary.com](https://cloudinary.com)
+2. Ga naar je dashboard en kopieer je credentials
+3. Zet in `.env`:
+   ```
+   STORAGE_TYPE=cloudinary
+   CLOUDINARY_CLOUD_NAME=je_cloud_name
+   CLOUDINARY_API_KEY=je_api_key
+   CLOUDINARY_API_SECRET=je_api_secret
+   ```
+4. Foto's worden nu automatisch naar Cloudinary geüpload en via CDN geserveerd
 
 ### 5. Start Development Server
 
@@ -83,6 +118,17 @@ GET    /api/quote-requests               # Lijst van aanvragen
 GET    /api/quote-requests/:id           # Specifieke aanvraag
 GET    /api/quote-requests/number/:nr   # Aanvraag bij request number
 PATCH  /api/quote-requests/:id/status   # Update status
+```
+
+### Catalog Management
+
+```
+GET    /api/catalog                      # Publieke catalogus items
+GET    /api/catalog/admin                # Alle items (admin)
+POST   /api/catalog                      # Nieuw item (admin)
+PUT    /api/catalog/:id                  # Update item (admin)
+DELETE /api/catalog/:id                  # Verwijder item (admin)
+POST   /api/catalog/upload               # Upload afbeelding (admin)
 ```
 
 ## Database Schema

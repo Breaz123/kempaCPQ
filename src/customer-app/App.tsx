@@ -18,6 +18,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { KnowledgeSidebar } from '@/components/KnowledgeSidebar';
+import { ProgressIndicator } from '@/components/ProgressIndicator';
 
 type Step = 'configuration' | 'price-blurred' | 'customer-info' | 'price-visible' | 'confirmation';
 
@@ -130,28 +132,77 @@ export function CustomerApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="bg-gradient-to-br from-white via-stone-50/50 to-white min-h-screen">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header Section with Conversion Focus */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Gratis & Zonder Verplichtingen</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-3 font-serif">
             Offerte Aanvragen
           </h1>
-          <p className="text-lg text-gray-600">
-            Configureer uw product en ontvang direct een prijsopgave
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
+            Configureer uw product en ontvang direct een transparante prijsopgave op maat
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <span>Directe berekening</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <span>Geen verborgen kosten</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <span>Persoonlijk advies</span>
+            </div>
+          </div>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-6"
-        >
+        {/* Main Content Grid: 2 columns on large screens */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="space-y-6"
+            >
+          {/* Progress Indicator */}
+          <motion.div variants={itemVariants}>
+            <ProgressIndicator
+              steps={[
+                {
+                  number: 1,
+                  label: 'Configuratie',
+                  completed: step !== 'configuration',
+                  active: step === 'configuration',
+                },
+                {
+                  number: 2,
+                  label: 'Prijsopgave',
+                  completed: ['price-visible', 'confirmation'].includes(step),
+                  active: ['price-blurred', 'customer-info'].includes(step),
+                },
+                {
+                  number: 3,
+                  label: 'Aanvraag',
+                  completed: step === 'confirmation',
+                  active: step === 'price-visible',
+                },
+              ]}
+            />
+          </motion.div>
+
           <AnimatePresence>
             {error && (
               <motion.div
@@ -194,13 +245,14 @@ export function CustomerApp() {
                 animate="visible"
                 exit="hidden"
               >
-                <Card className="border-2 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-2xl flex items-center gap-2">
-                      <span className="text-primary">1.</span> Configuratie
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-[#D4C4B0]">
+                    <CardTitle className="text-2xl flex items-center gap-2 text-primary">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">1</span>
+                      Configuratie
                     </CardTitle>
-                    <CardDescription>
-                      Configureer uw MDF poedercoating product
+                    <CardDescription className="mt-2">
+                      Configureer uw MDF poedercoating product met onze gebruiksvriendelijke tool
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -222,14 +274,15 @@ export function CustomerApp() {
                 exit="hidden"
                 className="space-y-6"
               >
-                <Card className="border-2 shadow-lg border-primary/20">
-                  <CardHeader>
+                <Card className="border-2 shadow-lg border-primary/20 hover:shadow-xl transition-shadow">
+                  <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-primary/20">
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="text-2xl flex items-center gap-2">
-                          <span className="text-primary">2.</span> Prijsopgave
+                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">2</span>
+                          Prijsopgave
                         </CardTitle>
-                        <CardDescription>
+                        <CardDescription className="mt-2">
                           Uw prijs is berekend! Vul uw gegevens in om de details te bekijken
                         </CardDescription>
                       </div>
@@ -267,14 +320,15 @@ export function CustomerApp() {
                 animate="visible"
                 exit="hidden"
               >
-                <Card className="border-2 shadow-lg">
-                  <CardHeader>
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-[#D4C4B0]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-2xl flex items-center gap-2">
-                          <span className="text-primary">3.</span> Uw Gegevens
+                        <CardTitle className="text-2xl flex items-center gap-2 text-primary">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">3</span>
+                          Uw Gegevens
                         </CardTitle>
-                        <CardDescription>
+                        <CardDescription className="mt-2">
                           Vul uw contactgegevens in om de prijsopgave te bekijken
                         </CardDescription>
                       </div>
@@ -308,15 +362,16 @@ export function CustomerApp() {
                 exit="hidden"
                 className="space-y-6"
               >
-                <Card className="border-2 shadow-lg border-primary/20">
-                  <CardHeader>
+                <Card className="border-2 shadow-lg border-primary/20 hover:shadow-xl transition-shadow">
+                  <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-primary/20">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-2xl flex items-center gap-2">
-                          <span className="text-primary">4.</span> Prijsopgave
+                        <CardTitle className="text-2xl flex items-center gap-2 text-primary">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">4</span>
+                          Prijsopgave
                         </CardTitle>
-                        <CardDescription>
-                          Bekijk de gedetailleerde prijsopgave voor uw configuratie
+                        <CardDescription className="mt-2">
+                          Bekijk de gedetailleerde en transparante prijsopgave voor uw configuratie
                         </CardDescription>
                       </div>
                       <Button
@@ -339,13 +394,14 @@ export function CustomerApp() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-2xl flex items-center gap-2">
-                      <span className="text-primary">5.</span> Offerte Aanvraag Verzenden
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-[#D4C4B0]">
+                    <CardTitle className="text-2xl flex items-center gap-2 text-primary">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">5</span>
+                      Offerte Aanvraag Verzenden
                     </CardTitle>
-                    <CardDescription>
-                      Controleer uw gegevens en verzend de aanvraag
+                    <CardDescription className="mt-2">
+                      Controleer uw gegevens en verzend de aanvraag voor persoonlijk advies
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -365,7 +421,7 @@ export function CustomerApp() {
                       onClick={handleSubmitQuoteRequest}
                       disabled={loading}
                       size="lg"
-                      className="w-full sm:w-auto"
+                      className="w-full sm:w-auto rounded-[999px]"
                     >
                       {loading ? (
                         <>
@@ -399,7 +455,16 @@ export function CustomerApp() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Knowledge Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
+              <KnowledgeSidebar variant="customer" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

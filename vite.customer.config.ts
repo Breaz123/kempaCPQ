@@ -17,6 +17,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   root: 'src/customer-app',
+  publicDir: path.resolve(__dirname, 'src/customer-app/public'),
   css: {
     postcss: {
       plugins: [

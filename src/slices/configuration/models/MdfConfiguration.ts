@@ -5,6 +5,8 @@
  * quantity, and which sides need coating.
  */
 
+import type { DrillPosition } from './DrillPosition';
+
 /**
  * Represents which sides of an MDF piece need powder coating
  */
@@ -41,6 +43,9 @@ export interface MdfConfiguration {
   
   /** Sides that need powder coating */
   coatingSides: CoatingSide[];
+  
+  /** Optional: Drill positions for holes (handles, hinges, etc.) */
+  drillPositions?: DrillPosition[];
   
   /** Timestamp when configuration was created */
   createdAt: Date;

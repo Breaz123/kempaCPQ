@@ -7,12 +7,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MdfConfiguration, CoatingSide, createMdfConfiguration, validateMdfConfiguration } from '../../slices/configuration';
+import { DrillPosition, createDrillPosition } from '../../slices/configuration/models/DrillPosition';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Trash2, Plus } from 'lucide-react';
 import { Mdf3DPreview } from './Mdf3DPreview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -38,25 +38,83 @@ const SIDE_LABELS: Record<CoatingSide, string> = {
   [CoatingSide.Right]: 'Rechterkant',
 };
 
+// Kempa MDF poederlak kleuren (benadering op basis van RGB-waarden)
+const BASE_COLORS = [
+  { name: 'Platinawit (KP-W980)', value: '#F0EDE8' },
+  { name: 'Zuiver wit (KP-9010)', value: '#F1EDE1' },
+  { name: 'Zijdegrijs (KP-U750)', value: '#BBB8AE' },
+  { name: 'Lichtgrijs (KP-U708)', value: '#D2D2CB' },
+  { name: 'Steengrijs (KP-U727)', value: '#9E9286' },
+  { name: 'Cascara (S101-06)', value: '#E6E3E0' },
+  { name: 'Zandbeige (KP-U156)', value: '#E3DBC9' },
+  { name: 'Turtle Grey (S035-22)', value: '#9F9385' },
+  { name: 'Zwart (KP-Zwart)', value: '#0E0E10' },
+  { name: 'Kasjmier (KP-U702)', value: '#C9C2BA' },
+  { name: 'Came (KP-U216)', value: '#F1E9DD' },
+  { name: 'Fango (KP-U795)', value: '#776B5E' },
+  { name: 'Hemelswit (KP-W930)', value: '#E8EAED' },
+  { name: 'Zachtgrijs (KP-916)', value: '#C8C7C3' },
+  { name: 'Taupe (KP-171)', value: '#8D8275' },
+  { name: 'Alpinewit (KP-W1100)', value: '#E3E2DB' },
+  { name: 'Grafietzwart (KP-701)', value: '#302E2D' },
+  { name: 'Donkerbruin (KP-764)', value: '#433632' },
+  { name: 'Muisgrijs (KP-933)', value: '#7B7871' },
+  { name: 'Terra (KP-084)', value: '#B07756' },
+  { name: 'Kastanjebruin (KP-8015)', value: '#5F332B' },
+  { name: 'Evergreen (KP-691)', value: '#8B9483' },
+  { name: 'Misty Blue (KP-U502)', value: '#6C7E80' },
+];
+
 export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
   const [lengthMm, setLengthMm] = useState<number>(1000);
   const [widthMm, setWidthMm] = useState<number>(500);
   const [heightMm, setHeightMm] = useState<number>(18);
   const [quantity, setQuantity] = useState<number>(1);
-  const [coatingSides, setCoatingSides] = useState<CoatingSide[]>([]);
-  const [numberOfColors, setNumberOfColors] = useState<number>(1);
+  const [selectedColor, setSelectedColor] = useState<string>(BASE_COLORS[0].value);
+  const [drillPositions, setDrillPositions] = useState<DrillPosition[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  
+  // State for adding new drill position
+  const [newDrillSide, setNewDrillSide] = useState<CoatingSide>(CoatingSide.Front);
+  const [newDrillPos1, setNewDrillPos1] = useState<string>('');
+  const [newDrillPos2, setNewDrillPos2] = useState<string>('');
 
-  const handleSideToggle = (side: CoatingSide) => {
-    setCoatingSides((prev) =>
-      prev.includes(side)
-        ? prev.filter((s) => s !== side)
-        : [...prev, side]
+  const handleAddDrillPosition = () => {
+    const pos1 = parseFloat(newDrillPos1);
+    const pos2 = parseFloat(newDrillPos2);
+    
+    if (isNaN(pos1) || isNaN(pos2) || pos1 < 0 || pos2 < 0) {
+      return;
+    }
+    
+    const newDrill = createDrillPosition(
+      `drill-${Date.now()}-${Math.random()}`,
+      newDrillSide,
+      pos1,
+      pos2
     );
+    
+    setDrillPositions([...drillPositions, newDrill]);
+    setNewDrillPos1('');
+    setNewDrillPos2('');
+  };
+
+  const handleRemoveDrillPosition = (id: string) => {
+    setDrillPositions(drillPositions.filter(d => d.id !== id));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Powder coating: always coat all sides with the same color
+    const allSides = [
+      CoatingSide.Top,
+      CoatingSide.Bottom,
+      CoatingSide.Front,
+      CoatingSide.Back,
+      CoatingSide.Left,
+      CoatingSide.Right,
+    ];
     
     const config = createMdfConfiguration(
       `config-${Date.now()}`,
@@ -64,8 +122,13 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
       widthMm,
       heightMm,
       quantity,
-      coatingSides
+      allSides // Always coat all sides
     );
+    
+    // Add drill positions to config
+    if (drillPositions.length > 0) {
+      (config as any).drillPositions = drillPositions;
+    }
 
     const validation = validateMdfConfiguration(config);
     
@@ -179,25 +242,197 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="space-y-2"
+            className="space-y-3"
           >
-            <Label htmlFor="numberOfColors">Aantal Kleuren</Label>
-            <Input
-              id="numberOfColors"
-              type="number"
-              value={numberOfColors}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                setNumberOfColors(Math.max(1, Math.min(6, value)));
-              }}
-              min="1"
-              max="6"
-              required
-              className="w-full"
-            />
+            <Label>Coating Kleur</Label>
+            <div className="grid grid-cols-4 gap-3">
+              {BASE_COLORS.map((color, index) => {
+                const isLightColor = color.value === '#F8F9FA' || color.value === '#F1C40F';
+                const isSelected = selectedColor === color.value;
+                
+                return (
+                  <motion.button
+                    key={color.value}
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 + index * 0.05 }}
+                    onClick={() => setSelectedColor(color.value)}
+                    className={`
+                      h-12 rounded-lg border-2 transition-all cursor-pointer relative
+                      ${isSelected
+                        ? 'border-primary ring-2 ring-primary ring-offset-2 scale-105'
+                        : isLightColor
+                        ? 'border-gray-400 hover:border-primary/50'
+                        : 'border-gray-300 hover:border-primary/50'
+                      }
+                    `}
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                  >
+                    {isSelected && (
+                      <div className="flex items-center justify-center h-full">
+                        <svg
+                          className={`w-6 h-6 drop-shadow-lg ${isLightColor ? 'text-gray-800' : 'text-white'}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
             <p className="text-sm text-muted-foreground">
-              Kies het aantal verschillende kleuren voor de coating (1-6)
+              Kies een kleur voor de poederlak coating. De hele plaat wordt gecoat met deze kleur.
             </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Deze kleuren zijn benaderingen op scherm; door het verschil in afwerkingsproduct kan
+              tussen poederlak en structuurlak een klein kleur- of glansgraadverschil optreden.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <Label>Boorposities</Label>
+              {drillPositions.length > 0 && (
+                <span className="text-sm font-medium text-primary">
+                  {drillPositions.length} {drillPositions.length === 1 ? 'gat' : 'gaten'}
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Voeg boorposities toe voor klinken, grijpers of handvaten. Gaten worden getoond als zwarte cirkels in de 3D preview.
+            </p>
+            
+            {/* Add new drill position */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border-2 border-dashed border-gray-300 rounded-lg">
+              <div className="space-y-1">
+                <Label htmlFor="drillSide" className="text-xs">Kant</Label>
+                <select
+                  id="drillSide"
+                  value={newDrillSide}
+                  onChange={(e) => setNewDrillSide(e.target.value as CoatingSide)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                >
+                  {ALL_SIDES.map(side => (
+                    <option key={side} value={side}>{SIDE_LABELS[side]}</option>
+                  ))}
+                </select>
+              </div>
+              {(() => {
+                // Determine which dimensions are short and long for the selected side
+                let shortLabel = '';
+                let longLabel = '';
+                
+                switch (newDrillSide) {
+                  case CoatingSide.Top:
+                  case CoatingSide.Bottom:
+                    // Top/Bottom: short side is width, long side is length
+                    shortLabel = `Vanaf korte zijkant (${widthMm}mm)`;
+                    longLabel = `Vanaf lange zijkant (${lengthMm}mm)`;
+                    break;
+                  case CoatingSide.Front:
+                  case CoatingSide.Back:
+                    // Front/Back: short side is height, long side is length
+                    shortLabel = `Vanaf korte zijkant (${heightMm}mm)`;
+                    longLabel = `Vanaf lange zijkant (${lengthMm}mm)`;
+                    break;
+                  case CoatingSide.Left:
+                  case CoatingSide.Right:
+                    // Left/Right: short side is height, long side is width
+                    shortLabel = `Vanaf korte zijkant (${heightMm}mm)`;
+                    longLabel = `Vanaf lange zijkant (${widthMm}mm)`;
+                    break;
+                }
+                
+                return (
+                  <>
+                    <div className="space-y-1">
+                      <Label htmlFor="drillPos1" className="text-xs">Positie 1 (cm)</Label>
+                      <Input
+                        id="drillPos1"
+                        type="number"
+                        value={newDrillPos1}
+                        onChange={(e) => setNewDrillPos1(e.target.value)}
+                        placeholder="0"
+                        min="0"
+                        step="0.1"
+                        className="text-sm"
+                      />
+                      <p className="text-xs text-muted-foreground">{shortLabel}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="drillPos2" className="text-xs">Positie 2 (cm)</Label>
+                      <Input
+                        id="drillPos2"
+                        type="number"
+                        value={newDrillPos2}
+                        onChange={(e) => setNewDrillPos2(e.target.value)}
+                        placeholder="0"
+                        min="0"
+                        step="0.1"
+                        className="text-sm"
+                      />
+                      <p className="text-xs text-muted-foreground">{longLabel}</p>
+                    </div>
+                  </>
+                );
+              })()}
+              <div className="flex items-end">
+                <Button
+                  type="button"
+                  onClick={handleAddDrillPosition}
+                  disabled={!newDrillPos1 || !newDrillPos2}
+                  className="w-full"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Toevoegen
+                </Button>
+              </div>
+            </div>
+
+            {/* List of drill positions */}
+            {drillPositions.length > 0 && (
+              <div className="space-y-2">
+                {drillPositions.map((drill) => (
+                  <div
+                    key={drill.id}
+                    className="flex items-center justify-between p-2 bg-gray-50 rounded-md border border-gray-200"
+                  >
+                    <div className="flex-1">
+                      <span className="font-medium text-sm">{SIDE_LABELS[drill.side]}</span>
+                      <span className="text-sm text-gray-600 ml-2">
+                        ({drill.position1Cm} cm, {drill.position2Cm} cm)
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveDrillPosition(drill.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -218,53 +453,14 @@ export function ConfigurationForm({ onSubmit }: ConfigurationFormProps) {
                 lengthMm={lengthMm}
                 widthMm={widthMm}
                 heightMm={heightMm}
-                coatingSides={coatingSides}
-                numberOfColors={numberOfColors}
+                coatingSides={[]}
+                selectedColor={selectedColor}
+                drillPositions={drillPositions}
               />
             </CardContent>
           </Card>
         </motion.div>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="space-y-3"
-      >
-        <Label>Coating Zijden</Label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {ALL_SIDES.map((side, index) => {
-            const isSelected = coatingSides.includes(side);
-            return (
-              <motion.label
-                key={side}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 + index * 0.05 }}
-                className={`
-                  flex items-center space-x-2 p-3 rounded-lg border-2 cursor-pointer transition-all
-                  ${isSelected 
-                    ? 'border-primary bg-primary/10 text-primary' 
-                    : 'border-[#D4C4B0] hover:border-primary/50 bg-white'
-                  }
-                `}
-              >
-                <Checkbox
-                  checked={isSelected}
-                  onChange={() => handleSideToggle(side)}
-                />
-                <span className="text-sm font-medium">{SIDE_LABELS[side]}</span>
-              </motion.label>
-            );
-          })}
-        </div>
-        {coatingSides.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            Selecteer ten minste één zijde voor coating
-          </p>
-        )}
-      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

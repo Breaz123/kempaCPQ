@@ -7,7 +7,7 @@ console.log('[Customer CPQ] Script started, importing modules...');
 import '../app/globals.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { CustomerApp } from './App';
+import { AppRouter } from './AppRouter';
 import { ErrorBoundary } from '../app/components/ErrorBoundary';
 
 console.log('[Customer CPQ] All imports successful');
@@ -33,7 +33,7 @@ try {
   root.render(
     <React.StrictMode>
       <ErrorBoundary>
-        <CustomerApp />
+        <AppRouter />
       </ErrorBoundary>
     </React.StrictMode>
   );
